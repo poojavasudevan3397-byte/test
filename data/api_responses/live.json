@@ -15,8 +15,8 @@
                   "seriesName": "Nepal Premier League 2025",
                   "matchDesc": "1st Match",
                   "matchFormat": "T20",
-                  "startDate": "1763374500000",
-                  "endDate": "1763387100000",
+                  "startDate": 1763374500000,
+                  "endDate": 1763387100000,
                   "state": "Complete",
                   "status": "Kathmandu Gorkhas won by 5 wkts",
                   "team1": {
@@ -40,8 +40,8 @@
                     "longitude": "85.287199"
                   },
                   "currBatTeamId": 2937,
-                  "seriesStartDt": "1763337600000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1763337600000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -79,8 +79,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "8th Match, Group A",
                   "matchFormat": "T20",
-                  "startDate": "1763389800000",
-                  "endDate": "1763402400000",
+                  "startDate": 1763389800000,
+                  "endDate": 1763402400000,
                   "state": "Complete",
                   "status": "Bangladesh A won by 8 wkts",
                   "team1": {
@@ -104,8 +104,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 288,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -148,8 +148,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Punjab trail by 225 runs",
                   "team1": {
@@ -173,8 +173,8 @@
                     "longitude": "76.774915"
                   },
                   "currBatTeamId": 245,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -204,8 +204,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Puducherry trail by 587 runs",
                   "team1": {
@@ -229,8 +229,8 @@
                     "longitude": "72.866381"
                   },
                   "currBatTeamId": 465,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -261,8 +261,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Chandigarh trail by 475 runs",
                   "team1": {
@@ -286,8 +286,8 @@
                     "longitude": "75.127888"
                   },
                   "currBatTeamId": 595,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -318,8 +318,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Delhi trail by 562 runs",
                   "team1": {
@@ -343,8 +343,8 @@
                     "longitude": "73.7917133"
                   },
                   "currBatTeamId": 81,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -374,8 +374,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1763263800000",
-                  "endDate": "1763548200000",
+                  "startDate": 1763263800000,
+                  "endDate": 1763548200000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Odisha lead by 130 runs",
                   "team1": {
@@ -399,8 +399,8 @@
                     "longitude": "85.8148098"
                   },
                   "currBatTeamId": 249,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -436,8 +436,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Bengal lead by 67 runs",
                   "team1": {
@@ -461,8 +461,8 @@
                     "longitude": "88.4416824"
                   },
                   "currBatTeamId": 232,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -492,8 +492,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Goa trail by 460 runs",
                   "team1": {
@@ -517,8 +517,8 @@
                     "longitude": "70.793182"
                   },
                   "currBatTeamId": 253,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -549,8 +549,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Himachal Pradesh trail by 548 runs",
                   "team1": {
@@ -574,8 +574,8 @@
                     "longitude": "76.343590"
                   },
                   "currBatTeamId": 251,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -606,8 +606,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Uttar Pradesh trail by 368 runs",
                   "team1": {
@@ -631,8 +631,8 @@
                     "longitude": "76.9831109"
                   },
                   "currBatTeamId": 93,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -662,8 +662,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Railways lead by 310 runs",
                   "team1": {
@@ -687,8 +687,8 @@
                     "longitude": "72.916183"
                   },
                   "currBatTeamId": 246,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -718,8 +718,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Vidarbha lead by 129 runs",
                   "team1": {
@@ -743,8 +743,8 @@
                     "longitude": "79.039576"
                   },
                   "currBatTeamId": 248,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -780,8 +780,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Services lead by 216 runs",
                   "team1": {
@@ -805,8 +805,8 @@
                     "longitude": "76.46442"
                   },
                   "currBatTeamId": 250,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -842,8 +842,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Madhya Pradesh trail by 126 runs",
                   "team1": {
@@ -867,8 +867,8 @@
                     "longitude": "75.879701"
                   },
                   "currBatTeamId": 167,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -898,8 +898,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Jammu and Kashmir lead by 324 runs",
                   "team1": {
@@ -923,8 +923,8 @@
                     "longitude": "74.8124651"
                   },
                   "currBatTeamId": 252,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -960,8 +960,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Andhra trail by 104 runs",
                   "team1": {
@@ -985,8 +985,8 @@
                     "longitude": "86.19144"
                   },
                   "currBatTeamId": 241,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -1016,8 +1016,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Gujarat lead by 57 runs",
                   "team1": {
@@ -1041,8 +1041,8 @@
                     "longitude": "77.794937"
                   },
                   "currBatTeamId": 163,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -1086,8 +1086,8 @@
                   "seriesName": "Ranji Trophy Plate 2025-26",
                   "matchDesc": "Plate",
                   "matchFormat": "TEST",
-                  "startDate": "1763261100000",
-                  "endDate": "1763545500000",
+                  "startDate": 1763261100000,
+                  "endDate": 1763545500000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Arunachal Pradesh trail by 349 runs",
                   "team1": {
@@ -1111,8 +1111,8 @@
                     "longitude": "88.530701"
                   },
                   "currBatTeamId": 468,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1769558400000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1769558400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -1149,8 +1149,8 @@
                   "seriesName": "Ranji Trophy Plate 2025-26",
                   "matchDesc": "Plate",
                   "matchFormat": "TEST",
-                  "startDate": "1763263800000",
-                  "endDate": "1763548200000",
+                  "startDate": 1763263800000,
+                  "endDate": 1763548200000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Bihar trail by 269 runs",
                   "team1": {
@@ -1174,8 +1174,8 @@
                     "longitude": "85.167619"
                   },
                   "currBatTeamId": 460,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1769558400000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1769558400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -1205,8 +1205,8 @@
                   "seriesName": "Ranji Trophy Plate 2025-26",
                   "matchDesc": "Plate",
                   "matchFormat": "TEST",
-                  "startDate": "1763265600000",
-                  "endDate": "1763550000000",
+                  "startDate": 1763265600000,
+                  "endDate": 1763550000000,
                   "state": "Stumps",
                   "status": "Day 2: Stumps - Manipur trail by 250 runs",
                   "team1": {
@@ -1230,8 +1230,8 @@
                     "longitude": "72.732645"
                   },
                   "currBatTeamId": 461,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1769558400000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1769558400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Stumps"
                 },
@@ -1274,8 +1274,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "6th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763361900000",
-                  "endDate": "1763374500000",
+                  "startDate": 1763361900000,
+                  "endDate": 1763374500000,
                   "state": "Complete",
                   "status": "Thailand Women won by 7 wkts",
                   "team1": {
@@ -1299,8 +1299,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 382,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -1348,5 +1348,5 @@
     "seoTitle": "Live Cricket Score - Scorecard and Match Results",
     "webURL": "www.cricbuzz.com/live-cricket-scores/"
   },
-  "responseLastUpdated": "1763410799"
+  "responseLastUpdated": 1763410799
 }

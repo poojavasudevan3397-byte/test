@@ -1,3 +1,5 @@
+
+
 """
 Database Connection and Schema Management
 Supports SQLite, PostgreSQL, and MySQL
@@ -76,19 +78,8 @@ class DatabaseConnection:
         self.db_path = db_path
         self.connection = None
 
-        # Resolve default sqlite path to the package repo so the DB file inside
-        # the `Cricbuzz` folder is used even when the process cwd differs.
         if db_type == "sqlite":
-            try:
-                from pathlib import Path
-                if self.db_path == "cricbuzz.db":
-                    repo_root = Path(__file__).resolve().parents[1]
-                    self.db_path = str(repo_root.joinpath("cricbuzz.db"))
-            except Exception:
-                # if anything goes wrong, fall back to provided db_path
-                pass
-
-            self.connection = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.connection = sqlite3.connect(db_path, check_same_thread=False)
             self.connection.row_factory = sqlite3.Row
         else:
             raise NotImplementedError("PostgreSQL/MySQL support coming soon")
@@ -104,11 +95,9 @@ class DatabaseConnection:
             CREATE TABLE players (
                 team_id INTEGER,
                 player_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                external_player_id TEXT,
                 player_name TEXT NOT NULL,
-                date_of_birth TEXT,
-                country TEXT DEFAULT '',
-                role TEXT DEFAULT '',
+                country TEXT,
+                role TEXT,
                 batting_style TEXT,
                 bowling_style TEXT,
                 meta TEXT,
@@ -150,38 +139,16 @@ class DatabaseConnection:
             )
             """
         )
-        # Teams table (store short name and flag)
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS teams (
-                team_id INTEGER PRIMARY KEY,
-                team_name TEXT NOT NULL,
-                team_short_name TEXT,
-                team_flag TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        )
-        # Safe migrations: add missing columns if table existed before
-        try:
-            cursor.execute("ALTER TABLE teams ADD COLUMN team_short_name TEXT")
-        except Exception:
-            pass
-        try:
-            cursor.execute("ALTER TABLE teams ADD COLUMN team_flag TEXT")
-        except Exception:
-            pass
 
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS series (
                 series_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 series_name TEXT NOT NULL UNIQUE,
-                series_short_name TEXT,
                 series_type TEXT,
                 start_date TIMESTAMP,
                 end_date TIMESTAMP,
-                host_country TEXT,
+                country TEXT,
                 total_matches INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -252,33 +219,39 @@ class DatabaseConnection:
         role: str,
         batting_style: str,
         bowling_style: str,
-        meta: str = "",
-        date_of_birth: str | None = None,
-        external_player_id: str | None = None,
+        meta: str = ""
     ) -> int:
         """Insert a new player"""
         cursor = self.connection.cursor()  # type: ignore[attr-defined]
         if getattr(self, "db_type", "sqlite") == "mysql":
-            placeholders = "%s, %s, %s, %s, %s, %s, %s, %s, %s"
+            placeholders = "%s, %s, %s, %s, %s, %s, %s"
             sql = (
                 """
-                INSERT INTO players (team_id, player_name, country, role, batting_style, bowling_style, meta, date_of_birth, external_player_id)
+                INSERT INTO players (team_id, player_name, country, role, batting_style, bowling_style, meta)
                 VALUES (""" + placeholders + ")"
             )
-            params = (team_id, player_name, country, role, batting_style, bowling_style, meta, date_of_birth, external_player_id)
+            params = (team_id, player_name, country, role, batting_style, bowling_style, meta)
         else:
-            placeholders = "?, ?, ?, ?, ?, ?, ?, ?, ?"
+            placeholders = "?, ?, ?, ?, ?, ?, ?"
             sql = (
                 """
-                INSERT INTO players (team_id, player_name, country, role, batting_style, bowling_style, meta, date_of_birth, external_player_id)
+                INSERT INTO players (team_id, player_name, country, role, batting_style, bowling_style, meta)
                 VALUES (""" + placeholders + ")"
             )
-            params = (team_id, player_name, country, role, batting_style, bowling_style, meta, date_of_birth, external_player_id)
+            params = (team_id, player_name, country, role, batting_style, bowling_style, meta)
 
         cursor.execute(sql, params)
+        try:
+            print("[db] insert_player executing (db_type=", getattr(self, "db_type", None), ")")
+            print("[db] SQL:", sql)
+            print("[db] params:", params)
+            print("[db] param types:", tuple(type(p) for p in params))
+        except Exception:
+            pass
+
         self.connection.commit()  # type: ignore[attr-defined]
         return cursor.lastrowid or 0  # type: ignore[attr-defined]
-
+    
     def update_player(self, player_id: int, **kwargs: Any) -> None:
         """Update player record"""
         cursor = self.connection.cursor()  # type: ignore[attr-defined]
@@ -288,8 +261,6 @@ class DatabaseConnection:
             "role",
             "batting_style",
             "bowling_style",
-            "date_of_birth",
-            "external_player_id",
             "total_runs",
             "total_wickets",
             "batting_average",
@@ -313,7 +284,6 @@ class DatabaseConnection:
         Extract all player details from a match API response and insert/update them in the players table.
         """
         from typing import List, Dict, Any, cast
-
         for team_key in ['team1', 'team2', 'teams']:
             team = match_data.get(team_key)
             if team is None:
@@ -321,98 +291,47 @@ class DatabaseConnection:
             if isinstance(team, dict):
                 teams: List[Dict[str, Any]] = [cast(Dict[str, Any], team)]
             elif isinstance(team, list):
-                teams = [cast(Dict[str, Any], t) for t in team if isinstance(t, dict)]  # type: ignore
+                teams = [cast(Dict[str, Any], t) for t in team if isinstance(t, dict)] # type: ignore
             else:
                 continue
-
             for t in teams:  # type: ignore
                 team_id = int(t.get('id', 0)) if 'id' in t else 0
-                team_country = str(t.get('country', '') or '')  # fallback country
+                # Handle team API response structure
                 players = t.get('player')
                 if not isinstance(players, list):
                     continue
-
                 for p in players:  # type: ignore
                     if not isinstance(p, dict):
                         continue
                     # Skip role header entries (e.g., 'BATSMEN', 'BOWLER', etc.)
                     if 'id' not in p:
                         continue
-
-                    player_name = str(p.get('name', '')).strip()  # type: ignore
-                    if not player_name:
-                        continue
-
-                    # Extract fields (try a few common keys)
-                    country = str(p.get('country') or p.get('nationality') or team_country or '')  # type: ignore
-                    batting_style = str(p.get('battingStyle', '') or p.get('batting_style', ''))  # type: ignore
-                    bowling_style = str(p.get('bowlingStyle', '') or p.get('bowling_style', '')) # type: ignore
-                    date_of_birth = str(p.get('dateOfBirth') or p.get('dob') or p.get('date_of_birth') or '') # type: ignore
-                    external_id = str(p.get('id') or p.get('player_id') or p.get('external_id') or '') # type: ignore
-
-                    # Role: explicit then infer from styles
-                    role = str(p.get('role') or p.get('playingRole') or p.get('position') or '').strip()    # type: ignore
-                    if not role:
-                        has_bat = bool(batting_style)
-                        has_bowl = bool(bowling_style)
-                        if has_bat and has_bowl:
-                            role = 'all-rounder'
-                        elif has_bat:
-                            role = 'batter'
-                        elif has_bowl:
-                            role = 'bowler'
+                    player_name = str(p.get('name', ''))  # type: ignore
+                    country = ""
+                    role = ""
+                    batting_style = str(p.get('battingStyle', ''))  # type: ignore
+                    bowling_style = str(p.get('bowlingStyle', ''))  # type: ignore
+                    #meta = str(p.get('imageId', ''))  # Store imageId as meta
+                    if player_name:
+                        query = (
+                            "SELECT player_id FROM players WHERE player_name = %s"
+                            if getattr(self, "db_type", "sqlite") == "mysql"
+                            else "SELECT player_id FROM players WHERE player_name = ?"
+                        )
+                        params: tuple[str, ...] = (player_name,)
+                        existing = self.execute_query(query, params)
+                        if not existing.empty:
+                            pid_value = existing.iloc[0]['player_id']  # type: ignore[index]
+                            player_id_val: int = int(pid_value) if pid_value is not None else 0
+                            self.update_player(
+                                player_id_val,
+                                country=str(country),
+                                role=str(role),
+                                batting_style=str(batting_style),
+                                bowling_style=str(bowling_style)
+                            )
                         else:
-                            role = ''
-
-                    # Prefer matching by external id (more stable), else normalized name
-                    existing = pd.DataFrame()
-                    try:
-                        if external_id:
-                            if getattr(self, "db_type", "sqlite") == "mysql":
-                                # basic quoting to avoid syntax break (internal use)
-                                safe = external_id.replace("'", "''")
-                                q = f"SELECT player_id FROM players WHERE external_player_id = '{safe}'"
-                                existing = self.execute_query(q)
-                            else:
-                                q = "SELECT player_id FROM players WHERE external_player_id = ?"
-                                existing = self.execute_query(q, (external_id,))
-                        if existing.empty:
-                            # normalized name match (case/whitespace tolerant)
-                            if getattr(self, "db_type", "sqlite") == "mysql":
-                                safe_name = player_name.replace("'", "''")
-                                q = f"SELECT player_id FROM players WHERE lower(trim(player_name)) = lower(trim('{safe_name}'))"
-                                existing = self.execute_query(q)
-                            else:
-                                q = "SELECT player_id FROM players WHERE lower(trim(player_name)) = lower(trim(?))"
-                                existing = self.execute_query(q, (player_name,))
-                    except Exception:
-                        existing = pd.DataFrame()
-
-                    if not existing.empty:
-                        pid_value = existing.iloc[0]['player_id']  # type: ignore[index]
-                        player_id_val: int = int(pid_value) if pid_value is not None else 0
-                        self.update_player(
-                            player_id_val,
-                            country=str(country),
-                            role=str(role),
-                            batting_style=str(batting_style),
-                            bowling_style=str(bowling_style),
-                            date_of_birth=date_of_birth,
-                            external_player_id=external_id,
-                        )
-                    else:
-                        # insert (note insert_player supports dob/external_id)
-                        self.insert_player(
-                            team_id,
-                            player_name,
-                            country,
-                            role,
-                            batting_style,
-                            bowling_style,
-                            meta='',
-                            date_of_birth=date_of_birth,
-                            external_player_id=external_id,
-                        )
+                            self.insert_player(team_id, player_name, country, role, batting_style, bowling_style)
 
     def delete_player(self, player_id: int) -> None:
         """Delete a player"""
@@ -422,41 +341,8 @@ class DatabaseConnection:
 
     def get_players(self) -> pd.DataFrame:
         """Fetch all players"""
-        # Return results with a leading serial column `s_no` so the UI shows a 1-based index
-        query = "SELECT * FROM players ORDER BY player_id ASC"
-        df = pd.read_sql(query, self.connection)  # type: ignore[call-arg]
-
-        # Ensure expected columns exist even on older schemas
-        expected_cols = [
-            "team_id",
-            "external_player_id",
-            "player_id",
-            "player_name",
-            "date_of_birth",
-            "country",
-            "role",
-            "batting_style",
-            "bowling_style",
-            "meta",
-            "created_at",
-        ]
-        for c in expected_cols:
-            if c not in df.columns:
-                df[c] = pd.NA
-
-        # Reorder to preferred canonical order (keep any extra columns afterwards)
-        cols_order = [c for c in expected_cols if c in df.columns] + [c for c in df.columns if c not in expected_cols]
-        df = df[cols_order]
-
-        # Add s_no (1-based index)
-        try:
-            df.insert(0, "s_no", range(1, len(df) + 1))
-        except Exception:
-            df["s_no"] = range(1, len(df) + 1)
-            cols = df.columns.tolist()
-            if cols[-1] == "s_no":
-                df = df[["s_no"] + [c for c in cols if c != "s_no"]]
-        return df
+        query = "SELECT * FROM players"
+        return pd.read_sql(query, self.connection)  # type: ignore[call-arg]
 
     def get_player_by_id(self, player_id: int) -> Dict[str, Any] | None:
         """Get a specific player"""
@@ -515,11 +401,6 @@ class DatabaseConnection:
     def get_venues(self) -> pd.DataFrame:
         """Fetch all venues"""
         query = "SELECT * FROM venues ORDER BY capacity DESC"
-        return pd.read_sql(query, self.connection)  # type: ignore[call-arg]
-
-    def get_teams(self) -> pd.DataFrame:
-        """Fetch all teams"""
-        query = "SELECT team_id, team_name, team_short_name, team_flag, created_at FROM teams ORDER BY team_name"
         return pd.read_sql(query, self.connection)  # type: ignore[call-arg]
 
     def execute_query(self, query: str, params: tuple[Any, ...] | None = None) -> pd.DataFrame:
@@ -599,34 +480,7 @@ class MySQLDatabaseConnection(DatabaseConnection):
 
     def get_players(self) -> pd.DataFrame:  # type: ignore[override]
         try:
-            query = "SELECT * FROM players ORDER BY total_runs DESC, player_id ASC"
-            df = pd.read_sql(query, self.connection)  # type: ignore[call-arg]
-
-            expected_cols = [
-                "team_id",
-                "external_player_id",
-                "player_id",
-                "player_name",
-                "date_of_birth",
-                "country",
-                "role",
-                "batting_style",
-                "bowling_style",
-                "meta",
-                "created_at",
-            ]
-            for c in expected_cols:
-                if c not in df.columns:
-                    df[c] = pd.NA
-
-            cols_order = [c for c in expected_cols if c in df.columns] + [c for c in df.columns if c not in expected_cols]
-            df = df[cols_order]
-
-            try:
-                df.insert(0, "s_no", range(1, len(df) + 1))
-            except Exception:
-                df["s_no"] = range(1, len(df) + 1)
-            return df
+            return pd.read_sql("SELECT * FROM players ORDER BY total_runs DESC", self.connection)  # type: ignore[call-arg]
         except Exception:
             return pd.DataFrame()
 
@@ -785,141 +639,66 @@ class MySQLDatabaseConnection(DatabaseConnection):
                 pass
             return pd.DataFrame()
 
-    def insert_or_update_series(
-        self,
-        series_id: int | None,
-        series_name: str,
-        series_short_name: str | None = None,
-        series_type: str | None = None,
-        start_date: str | None = None,
-        end_date: str | None = None,
-        host_country: str | None = None,
-        total_matches: int = 0,
-    ) -> int:
-        """Insert a new series or update existing one (by id or name). Returns series_id."""
-        cursor = self.connection.cursor()  # type: ignore[attr-defined]
 
-        # Update by provided id
-        if series_id:
-            cursor.execute(
-                """
-                UPDATE series
-                SET series_name = ?, series_short_name = ?, series_type = ?, start_date = ?, end_date = ?, host_country = ?, total_matches = ?
-                WHERE series_id = ?
-                """,
-                (series_name, series_short_name, series_type, start_date, end_date, host_country, total_matches, series_id),
-            )
-            self.connection.commit()  # type: ignore[attr-defined]
-            return int(series_id)
+def get_db_connection() -> DatabaseConnection:
+    """Return a DatabaseConnection instance.
 
-        # Try find by name and update
-        cursor.execute("SELECT series_id FROM series WHERE series_name = ?", (series_name,))  # type: ignore[attr-defined]
-        row = cursor.fetchone()  # type: ignore[attr-defined]
-        if row:
-            sid = int(row["series_id"]) # type: ignore[index]
-            cursor.execute(
-                """
-                UPDATE series
-                SET series_short_name = ?, series_type = ?, start_date = ?, end_date = ?, host_country = ?, total_matches = ?
-                WHERE series_id = ?
-                """,
-                (series_short_name, series_type, start_date, end_date, host_country, total_matches, sid),
-            )
-            self.connection.commit()  # type: ignore[attr-defined]
-            return sid
-
-        # Insert new series
-        cursor.execute(
-            """
-            INSERT INTO series (series_name, series_short_name, series_type, start_date, end_date, host_country, total_matches)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (series_name, series_short_name, series_type, start_date, end_date, host_country, total_matches),
-        )
-        self.connection.commit()  # type: ignore[attr-defined]
-        return int(cursor.lastrowid or 0)  # type: ignore[attr-defined]
-
-    def insert_or_update_team(
-        self,
-        team_id: int | None,
-        team_name: str,
-        team_short_name: str | None = None,
-        team_flag: str | None = None,
-    ) -> int:
-        """Insert a new team or update existing one (by id or name). Returns team_id."""
-        cursor = self.connection.cursor()  # type: ignore[attr-defined]
-
-        # Update by provided team_id
-        if team_id:
-            cursor.execute(
-                """
-                INSERT OR REPLACE INTO teams (team_id, team_name, team_short_name, team_flag, created_at)
-                VALUES (?, ?, ?, ?, COALESCE((SELECT created_at FROM teams WHERE team_id = ?), CURRENT_TIMESTAMP))
-                """,
-                (team_id, team_name, team_short_name, team_flag, team_id),
-            )
-            self.connection.commit()  # type: ignore[attr-defined]
-            return int(team_id)
-
-        # Try find by name and update
-        cursor.execute("SELECT team_id FROM teams WHERE team_name = ?", (team_name,))  # type: ignore[attr-defined]
-        row = cursor.fetchone()  # type: ignore[attr-defined]
-        if row:
-            tid = int(row["team_id"])  # type: ignore[index]
-            cursor.execute(
-                """
-                UPDATE teams
-                SET team_short_name = ?, team_flag = ?
-                WHERE team_id = ?
-                """,
-                (team_short_name, team_flag, tid),
-            )
-            self.connection.commit()  # type: ignore[attr-defined]
-            return tid
-
-        # Insert new team (let caller supply numeric team_id or let DB assign)
-        # If team_id is not provided, attempt to insert without it (auto assigned)
-        if team_id is None:
-            cursor.execute(
-                """
-                INSERT INTO teams (team_name, team_short_name, team_flag)
-                VALUES (?, ?, ?)
-                """,
-                (team_name, team_short_name, team_flag),
-            )
-            self.connection.commit()  # type: ignore[attr-defined]
-            return int(cursor.lastrowid or 0)  # type: ignore[attr-defined]
-
-        return int(team_id)
-
-
-def get_db_connection(secrets: Dict[str, Any] | None = None) -> "DatabaseConnection":
+    Try to connect to MySQL using (in order):
+    1. Streamlit secrets (if available)
+    2. Hardcoded credentials (from demo1.py)
+    3. Fall back to local SQLite file
     """
-    Return a database connection instance.
-
-    - If `secrets` contains keys commonly used for MySQL (host/user/password/database/dbname)
-      or the environment variable `DB_TYPE` is set to "mysql", attempt to return a
-      `MySQLDatabaseConnection(secrets)`.
-    - On failure or when no MySQL indicators are present, return a local `DatabaseConnection()` (SQLite).
-    """
-    secrets = secrets or {}
+    # Safely read secrets at call time (avoids referencing undefined globals at import)
+    mysql_secrets: Dict[str, Any] | None = None
     try:
-        import os
-
-        db_type = str(secrets.get("db_type") or os.environ.get("DB_TYPE") or "").lower()
+        secrets = getattr(st, "secrets", None)
+        # Prefer Mapping check so type-checkers understand .get
+        if isinstance(secrets, Mapping):
+            mapping = cast(Mapping[str, Any], secrets)
+            # use mapping.get with an explicit cast so type-checkers see a concrete Mapping
+            val = mapping.get("mysql")
+            if val:
+                mysql_secrets = cast(Dict[str, Any], val)
+        else:
+            # Fallback: if secrets provides a callable `get`, use it safely
+            getter = getattr(secrets, "get", None)
+            if callable(getter):
+                val = getter("mysql")
+                if val:
+                    mysql_secrets = cast(Dict[str, Any], val)
     except Exception:
-        db_type = ""
+        mysql_secrets = None
 
-    # Heuristic: secrets provided or explicit DB_TYPE
-    if db_type == "mysql" or any(k in secrets for k in ("host", "user", "password", "database", "dbname")):
-        try:
-            return MySQLDatabaseConnection(secrets)
-        except Exception as e:  # pragma: no cover - fallback behavior
+    # If no secrets, use hardcoded credentials from demo1.py
+    if mysql_secrets is None:
+        mysql_secrets = {
+            "host": "localhost",
+            "user": "root",
+            "password": "Vasu@76652",
+            "database": "cricketdb",
+            "port": 3306,
+        }
+
+    if mysql_secrets:
+        # Ensure pymysql is available
+        if pymysql is None:
             try:
-                st.warning(f"MySQL connection failed ({e}); falling back to sqlite.")
+                st.warning("pymysql is not installed; falling back to SQLite database")
             except Exception:
                 pass
-            return DatabaseConnection()
+        else:
+            try:
+                conn = MySQLDatabaseConnection(mysql_secrets)
+                # Initialize schema (creates tables if helper present)
+                conn.init_schema()
+                return conn
+            except Exception as e:
+                try:
+                    st.error(f"Unable to connect to MySQL: {e}")
+                except Exception:
+                    pass
 
-    # Default: local sqlite connection
-    return DatabaseConnection()
+    # Fallback to local SQLite
+    db = DatabaseConnection(db_type="sqlite", db_path="cricbuzz.db")
+    db.init_schema()
+    return db

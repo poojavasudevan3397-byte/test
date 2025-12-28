@@ -70,6 +70,36 @@ class CricbuzzAPI:
             st.warning(f"Failed to fetch scorecard for match {match_id}: {e}")
             return {}
 
+    def get_player_info(self, player_id: str) -> Dict[str, Any]:
+        """Fetch player details by player id
+
+        Endpoint: /stats/v1/player/{player_id}
+        Returns the player profile JSON (dob, country, roles, etc.)
+        """
+        try:
+            url = f"{self.base_url}/stats/v1/player/{player_id}"
+            response = requests.get(url, headers=self.headers, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            st.warning(f"Failed to fetch player info for {player_id}: {e}")
+            return {}
+
+    def get_venue_info(self, venue_id: str) -> Dict[str, Any]:
+        """Fetch venue details by venue id
+
+        Endpoint: /venues/v1/{venue_id}
+        Returns venue metadata (ground, city, timezone, coordinates)
+        """
+        try:
+            url = f"{self.base_url}/venues/v1/{venue_id}"
+            response = requests.get(url, headers=self.headers, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            st.warning(f"Failed to fetch venue info for {venue_id}: {e}")
+            return {}
+
     def get_series(self) -> Dict[str, Any]:
         """Fetch cricket series information"""
         try:
@@ -86,6 +116,18 @@ class CricbuzzAPI:
 def get_api_client(api_key: str) -> CricbuzzAPI:
     """Get cached API client instance"""
     return CricbuzzAPI(api_key)
+
+
+def get_player_info_by_id(api_key: str, player_id: str) -> Dict[str, Any]:
+    """Convenience helper to fetch player info using an API key."""
+    client = get_api_client(api_key)
+    return client.get_player_info(player_id)
+
+
+def get_venue_info_by_id(api_key: str, venue_id: str) -> Dict[str, Any]:
+    """Convenience helper to fetch venue info using an API key."""
+    client = get_api_client(api_key)
+    return client.get_venue_info(venue_id)
 
 
 def normalize_matches(data: Dict[str, Any]) -> List[Dict[str, Any]]:

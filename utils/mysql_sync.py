@@ -1,57 +1,57 @@
-"""
-MySQL sync helpers
+# """
+# MySQL sync helpers
 
-Provides functions to create the required MySQL tables (matches, batting_stats,
-bowling_stats) and simple upsert helpers. Designed to work with SQLAlchemy if
-installed, or fall back to pymysql for direct execution.
+# Provides functions to create the required MySQL tables (matches, batting_stats,
+# bowling_stats) and simple upsert helpers. Designed to work with SQLAlchemy if
+# installed, or fall back to pymysql for direct execution.
 
-Usage (preferred):
-    from utils.mysql_sync import get_engine_from_secrets, create_mysql_schema, upsert_match
-    engine = get_engine_from_secrets({"host":..., "user":..., "password":..., "database":...})
-    create_mysql_schema(engine)
+# Usage (preferred):
+#     from utils.mysql_sync import get_engine_from_secrets, create_mysql_schema, upsert_match
+#     engine = get_engine_from_secrets({"host":..., "user":..., "password":..., "database":...})
+#     create_mysql_schema(engine)
 
-Or, for a quick run (not recommended to commit credentials):
-    python -c "from utils.mysql_sync import create_mysql_schema; create_mysql_schema({'host':'localhost', 'user':'root', 'password':'xxx', 'database':'cricketdb'})"
+# Or, for a quick run (not recommended to commit credentials):
+#     python -c "from utils.mysql_sync import create_mysql_schema; create_mysql_schema({'host':'localhost', 'user':'root', 'password':'xxx', 'database':'cricketdb'})"
 
-Note: This module does NOT write credentials to the repo. Use Streamlit secrets
-or environment variables to keep credentials safe.
-"""
-from typing import Any, Dict, List, Optional, cast
-from datetime import datetime
-import json
+# Note: This module does NOT write credentials to the repo. Use Streamlit secrets
+# or environment variables to keep credentials safe.
+# """
+# from typing import Any, Dict, List, Optional, cast
+# from datetime import datetime
+# import json
 
-# Optional SQLAlchemy/pymysql imports
-create_engine: Any = None
-pymysql_module: Any = None
+# # Optional SQLAlchemy/pymysql imports
+# create_engine: Any = None
+# pymysql_module: Any = None
 
-try:
-    # type: ignore[reportMissingImports]
-    from sqlalchemy import create_engine as sa_create_engine, text  # type: ignore[reportMissingImports]
-    create_engine = sa_create_engine
-except Exception:
-    create_engine = None  # type: ignore
+# try:
+#     # type: ignore[reportMissingImports]
+#     from sqlalchemy import create_engine as sa_create_engine, text  # type: ignore[reportMissingImports]
+#     create_engine = sa_create_engine
+# except Exception:
+#     create_engine = None  # type: ignore
 
-try:
-    # type: ignore[reportMissingImports]
-    import pymysql as pymysql_module  # type: ignore[reportMissingImports]
-except Exception as e:
-    pymysql_module = None  # type: ignore
-    import traceback
-    print(f"Warning: Failed to import pymysql: {e}")
-    traceback.print_exc()
+# try:
+#     # type: ignore[reportMissingImports]
+#     import pymysql as pymysql_module  # type: ignore[reportMissingImports]
+# except Exception as e:
+#     pymysql_module = None  # type: ignore
+#     import traceback
+#     print(f"Warning: Failed to import pymysql: {e}")
+#     traceback.print_exc()
 
 
-def _get_pymysql() -> Any:
-    """Lazy-load pymysql to handle Streamlit import issues."""
-    global pymysql_module
-    if pymysql_module is not None:
-        return pymysql_module
-    try:
-        import pymysql as pm
-        pymysql_module = pm
-        return pymysql_module
-    except Exception as e:
-        raise RuntimeError(f"pymysql not available: {e}")
+# def _get_pymysql() -> Any:
+#     """Lazy-load pymysql to handle Streamlit import issues."""
+#     global pymysql_module
+#     if pymysql_module is not None:
+#         return pymysql_module
+#     try:
+#         import pymysql as pm
+#         pymysql_module = pm
+#         return pymysql_module
+#     except Exception as e:
+#         raise RuntimeError(f"pymysql not available: {e}")
 #         raise RuntimeError("pymysql is not available to execute statements")
 
 #     conn = pymysql_module.connect(
@@ -611,6 +611,44 @@ MySQL sync helpers (corrected)
 from typing import Any, Dict, List, Optional, Tuple, Iterable, cast
 from datetime import datetime
 import traceback
+from typing import Any, Dict, List, Optional, cast
+from datetime import datetime
+import json # type: ignore
+
+
+# Optional SQLAlchemy/pymysql imports
+create_engine: Any = None
+pymysql_module: Any = None
+
+try:
+    # type: ignore[reportMissingImports]
+    from sqlalchemy import create_engine as sa_create_engine, text  # type: ignore[reportMissingImports]
+    create_engine = sa_create_engine
+except Exception:
+    create_engine = None  # type: ignore
+
+try:
+    # type: ignore[reportMissingImports]
+    import pymysql as pymysql_module  # type: ignore[reportMissingImports]
+except Exception as e:
+    pymysql_module = None  # type: ignore
+    import traceback
+    print(f"Warning: Failed to import pymysql: {e}")
+    traceback.print_exc()
+
+
+def _get_pymysql() -> Any:
+    """Lazy-load pymysql to handle Streamlit import issues."""
+    global pymysql_module
+    if pymysql_module is not None:
+        return pymysql_module
+    try:
+        import pymysql as pm
+        pymysql_module = pm
+        return pymysql_module
+    except Exception as e:
+        raise RuntimeError(f"pymysql not available: {e}")    
+        raise RuntimeError("pymysql is not available to execute statements")
 
 def _convert_timestamp_to_datetime(timestamp_val: Any) -> Optional[str]:
     if timestamp_val is None or timestamp_val == "":

@@ -15,8 +15,8 @@
                   "seriesName": "South Africa tour of India, 2025",
                   "matchDesc": "1st Test",
                   "matchFormat": "TEST",
-                  "startDate": "1763092800000",
-                  "endDate": "1763463600000",
+                  "startDate": 1763092800000,
+                  "endDate": 1763463600000,
                   "state": "Complete",
                   "status": "South Africa won by 30 runs",
                   "team1": {
@@ -40,8 +40,8 @@
                     "longitude": "88.343247"
                   },
                   "currBatTeamId": 11,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1766275200000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1766275200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "RSA Won"
                 },
@@ -91,8 +91,8 @@
                   "seriesName": "Ireland tour of Bangladesh, 2025",
                   "matchDesc": "1st Test",
                   "matchFormat": "TEST",
-                  "startDate": "1762831800000",
-                  "endDate": "1763202600000",
+                  "startDate": 1762831800000,
+                  "endDate": 1763202600000,
                   "state": "Complete",
                   "status": "Bangladesh won by an innings and 47 runs",
                   "team1": {
@@ -116,8 +116,8 @@
                     "longitude": "91.863608"
                   },
                   "currBatTeamId": 6,
-                  "seriesStartDt": "1762819200000",
-                  "seriesEndDt": "1764806400000",
+                  "seriesStartDt": 1762819200000,
+                  "seriesEndDt": 1764806400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "BAN Won"
                 },
@@ -162,8 +162,8 @@
                   "seriesName": "West Indies tour of New Zealand, 2025",
                   "matchDesc": "1st ODI",
                   "matchFormat": "ODI",
-                  "startDate": "1763254800000",
-                  "endDate": "1763283600000",
+                  "startDate": 1763254800000,
+                  "endDate": 1763283600000,
                   "state": "Complete",
                   "status": "New Zealand won by 7 runs",
                   "team1": {
@@ -187,8 +187,8 @@
                     "longitude": "172.624863"
                   },
                   "currBatTeamId": 13,
-                  "seriesStartDt": "1762300800000",
-                  "seriesEndDt": "1766534400000",
+                  "seriesStartDt": 1762300800000,
+                  "seriesEndDt": 1766534400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "NZ Won"
                 },
@@ -218,8 +218,8 @@
                   "seriesName": "West Indies tour of New Zealand, 2025",
                   "matchDesc": "5th T20I",
                   "matchFormat": "T20",
-                  "startDate": "1762992900000",
-                  "endDate": "1763005500000",
+                  "startDate": 1762992900000,
+                  "endDate": 1763005500000,
                   "state": "Complete",
                   "status": "New Zealand won by 8 wkts",
                   "team1": {
@@ -243,8 +243,8 @@
                     "longitude": "170.505005"
                   },
                   "currBatTeamId": 13,
-                  "seriesStartDt": "1762300800000",
-                  "seriesEndDt": "1766534400000",
+                  "seriesStartDt": 1762300800000,
+                  "seriesEndDt": 1766534400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "NZ Won"
                 },
@@ -289,8 +289,8 @@
                   "seriesName": "Sri Lanka tour of Pakistan 2025",
                   "matchDesc": "3rd ODI",
                   "matchFormat": "ODI",
-                  "startDate": "1763285400000",
-                  "endDate": "1763314200000",
+                  "startDate": 1763285400000,
+                  "endDate": 1763314200000,
                   "state": "Complete",
                   "status": "Pakistan won by 6 wkts",
                   "team1": {
@@ -314,8 +314,8 @@
                     "longitude": "73.075824"
                   },
                   "currBatTeamId": 3,
-                  "seriesStartDt": "1762819200000",
-                  "seriesEndDt": "1763337600000",
+                  "seriesStartDt": 1762819200000,
+                  "seriesEndDt": 1763337600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PAK Won"
                 },
@@ -345,8 +345,8 @@
                   "seriesName": "Sri Lanka tour of Pakistan 2025",
                   "matchDesc": "2nd ODI",
                   "matchFormat": "ODI",
-                  "startDate": "1763112600000",
-                  "endDate": "1763141400000",
+                  "startDate": 1763112600000,
+                  "endDate": 1763141400000,
                   "state": "Complete",
                   "status": "Pakistan won by 8 wkts",
                   "team1": {
@@ -370,8 +370,8 @@
                     "longitude": "73.075824"
                   },
                   "currBatTeamId": 3,
-                  "seriesStartDt": "1762819200000",
-                  "seriesEndDt": "1763337600000",
+                  "seriesStartDt": 1762819200000,
+                  "seriesEndDt": 1763337600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PAK Won"
                 },
@@ -401,8 +401,8 @@
                   "seriesName": "Sri Lanka tour of Pakistan 2025",
                   "matchDesc": "1st ODI",
                   "matchFormat": "ODI",
-                  "startDate": "1762853400000",
-                  "endDate": "1762882200000",
+                  "startDate": 1762853400000,
+                  "endDate": 1762882200000,
                   "state": "Complete",
                   "status": "Pakistan won by 6 runs",
                   "team1": {
@@ -426,8 +426,8 @@
                     "longitude": "73.075824"
                   },
                   "currBatTeamId": 3,
-                  "seriesStartDt": "1762819200000",
-                  "seriesEndDt": "1763337600000",
+                  "seriesStartDt": 1762819200000,
+                  "seriesEndDt": 1763337600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PAK Won"
                 },
@@ -465,8 +465,8 @@
                   "seriesName": "Indonesia Tri-Series 2025",
                   "matchDesc": "11th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763013600000",
-                  "endDate": "1763026200000",
+                  "startDate": 1763013600000,
+                  "endDate": 1763026200000,
                   "state": "Complete",
                   "status": "Indonesia won by 10 wkts",
                   "team1": {
@@ -490,8 +490,8 @@
                     "longitude": "115.188919"
                   },
                   "currBatTeamId": 566,
-                  "seriesStartDt": "1762387200000",
-                  "seriesEndDt": "1763251200000",
+                  "seriesStartDt": 1762387200000,
+                  "seriesEndDt": 1763251200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "IDN Won"
                 },
@@ -520,8 +520,8 @@
                   "seriesName": "Indonesia Tri-Series 2025",
                   "matchDesc": "8th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762840800000",
-                  "endDate": "1762853400000",
+                  "startDate": 1762840800000,
+                  "endDate": 1762853400000,
                   "state": "Complete",
                   "status": "Indonesia won by 10 wkts - Match reduced to 10 overs due to rain",
                   "team1": {
@@ -545,8 +545,8 @@
                     "longitude": "115.188919"
                   },
                   "currBatTeamId": 566,
-                  "seriesStartDt": "1762387200000",
-                  "seriesEndDt": "1763251200000",
+                  "seriesStartDt": 1762387200000,
+                  "seriesEndDt": 1763251200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "IDN Won"
                 },
@@ -575,8 +575,8 @@
                   "seriesName": "Indonesia Tri-Series 2025",
                   "matchDesc": "9th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762911000000",
-                  "endDate": "1762923600000",
+                  "startDate": 1762911000000,
+                  "endDate": 1762923600000,
                   "state": "Complete",
                   "status": "Myanmar won by 93 runs",
                   "team1": {
@@ -600,8 +600,8 @@
                     "longitude": "115.188919"
                   },
                   "currBatTeamId": 565,
-                  "seriesStartDt": "1762387200000",
-                  "seriesEndDt": "1763251200000",
+                  "seriesStartDt": 1762387200000,
+                  "seriesEndDt": 1763251200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MMR Won"
                 },
@@ -631,8 +631,8 @@
                   "seriesName": "Indonesia Tri-Series 2025",
                   "matchDesc": "7th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762822800000",
-                  "endDate": "1762835400000",
+                  "startDate": 1762822800000,
+                  "endDate": 1762835400000,
                   "state": "Complete",
                   "status": "Indonesia won by 5 wkts (DLS Method  -  due to rain)",
                   "team1": {
@@ -656,8 +656,8 @@
                     "longitude": "115.188919"
                   },
                   "currBatTeamId": 566,
-                  "seriesStartDt": "1762387200000",
-                  "seriesEndDt": "1763251200000",
+                  "seriesStartDt": 1762387200000,
+                  "seriesEndDt": 1763251200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "IDN Won"
                 },
@@ -687,8 +687,8 @@
                   "seriesName": "Indonesia Tri-Series 2025",
                   "matchDesc": "10th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762997400000",
-                  "endDate": "1763010000000",
+                  "startDate": 1762997400000,
+                  "endDate": 1763010000000,
                   "state": "Complete",
                   "status": "Indonesia won by 9 wkts",
                   "team1": {
@@ -712,8 +712,8 @@
                     "longitude": "115.188919"
                   },
                   "currBatTeamId": 566,
-                  "seriesStartDt": "1762387200000",
-                  "seriesEndDt": "1763251200000",
+                  "seriesStartDt": 1762387200000,
+                  "seriesEndDt": 1763251200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "IDN Won"
                 },
@@ -751,8 +751,8 @@
                   "seriesName": "Afghanistan tour of Qatar, 2025",
                   "matchDesc": "Only T20I",
                   "matchFormat": "T20",
-                  "startDate": "1762871400000",
-                  "endDate": "1762884000000",
+                  "startDate": 1762871400000,
+                  "endDate": 1762884000000,
                   "state": "Complete",
                   "status": "Afghanistan won by 25 runs",
                   "team1": {
@@ -776,8 +776,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 96,
-                  "seriesStartDt": "1762819200000",
-                  "seriesEndDt": "1762992000000",
+                  "seriesStartDt": 1762819200000,
+                  "seriesEndDt": 1762992000000,
                   "isTimeAnnounced": true,
                   "stateTitle": "AFG Won"
                 },
@@ -815,8 +815,8 @@
                   "seriesName": "Hong Kong tour of Qatar 2025",
                   "matchDesc": "2nd T20I",
                   "matchFormat": "T20",
-                  "startDate": "1763026200000",
-                  "endDate": "1763038800000",
+                  "startDate": 1763026200000,
+                  "endDate": 1763038800000,
                   "state": "Complete",
                   "status": "Hong Kong won by 9 runs",
                   "team1": {
@@ -840,8 +840,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 8,
-                  "seriesStartDt": "1762905600000",
-                  "seriesEndDt": "1763164800000",
+                  "seriesStartDt": 1762905600000,
+                  "seriesEndDt": 1763164800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "HK Won"
                 },
@@ -871,8 +871,8 @@
                   "seriesName": "Hong Kong tour of Qatar 2025",
                   "matchDesc": "1st T20I",
                   "matchFormat": "T20",
-                  "startDate": "1762957800000",
-                  "endDate": "1762970400000",
+                  "startDate": 1762957800000,
+                  "endDate": 1762970400000,
                   "state": "Complete",
                   "status": "Qatar won by 6 runs",
                   "team1": {
@@ -896,8 +896,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 525,
-                  "seriesStartDt": "1762905600000",
-                  "seriesEndDt": "1763164800000",
+                  "seriesStartDt": 1762905600000,
+                  "seriesEndDt": 1763164800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "QAT Won"
                 },
@@ -940,8 +940,8 @@
                   "seriesName": "CSA T20 Knock Out Competition 2025",
                   "matchDesc": "19th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763204400000",
-                  "endDate": "1763217000000",
+                  "startDate": 1763204400000,
+                  "endDate": 1763217000000,
                   "state": "Complete",
                   "status": "Match abandoned due to rain (no toss)",
                   "team1": {
@@ -964,8 +964,8 @@
                     "latitude": "-29.116752",
                     "longitude": "26.20519"
                   },
-                  "seriesStartDt": "1761264000000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1761264000000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Abandon"
                 }
@@ -977,8 +977,8 @@
                   "seriesName": "CSA T20 Knock Out Competition 2025",
                   "matchDesc": "20th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763204400000",
-                  "endDate": "1763217000000",
+                  "startDate": 1763204400000,
+                  "endDate": 1763217000000,
                   "state": "Complete",
                   "status": "Match abandoned due to rain (no toss)",
                   "team1": {
@@ -1001,8 +1001,8 @@
                     "latitude": "-28.742487",
                     "longitude": "24.742101"
                   },
-                  "seriesStartDt": "1761264000000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1761264000000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Abandon"
                 }
@@ -1014,8 +1014,8 @@
                   "seriesName": "CSA T20 Knock Out Competition 2025",
                   "matchDesc": "21st Match",
                   "matchFormat": "T20",
-                  "startDate": "1763204400000",
-                  "endDate": "1763217000000",
+                  "startDate": 1763204400000,
+                  "endDate": 1763217000000,
                   "state": "Complete",
                   "status": "Eastern Storm won by 8 wkts (DLS Method)",
                   "team1": {
@@ -1039,8 +1039,8 @@
                     "longitude": "-4.634697"
                   },
                   "currBatTeamId": 933,
-                  "seriesStartDt": "1761264000000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1761264000000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "ESTORM Won"
                 },
@@ -1070,8 +1070,8 @@
                   "seriesName": "CSA T20 Knock Out Competition 2025",
                   "matchDesc": "18th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762945200000",
-                  "endDate": "1762957800000",
+                  "startDate": 1762945200000,
+                  "endDate": 1762957800000,
                   "state": "Complete",
                   "status": "Mpumalanga Rhinos won by 9 runs",
                   "team1": {
@@ -1095,8 +1095,8 @@
                     "longitude": "31.017780"
                   },
                   "currBatTeamId": 903,
-                  "seriesStartDt": "1761264000000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1761264000000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MPR Won"
                 },
@@ -1126,8 +1126,8 @@
                   "seriesName": "CSA T20 Knock Out Competition 2025",
                   "matchDesc": "17th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762945200000",
-                  "endDate": "1762957800000",
+                  "startDate": 1762945200000,
+                  "endDate": 1762957800000,
                   "state": "Complete",
                   "status": "Eastern Cape won by 69 runs",
                   "team1": {
@@ -1151,8 +1151,8 @@
                     "longitude": "27.919465"
                   },
                   "currBatTeamId": 927,
-                  "seriesStartDt": "1761264000000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1761264000000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "ECAPE Won"
                 },
@@ -1182,8 +1182,8 @@
                   "seriesName": "CSA T20 Knock Out Competition 2025",
                   "matchDesc": "16th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762945200000",
-                  "endDate": "1762957800000",
+                  "startDate": 1762945200000,
+                  "endDate": 1762957800000,
                   "state": "Complete",
                   "status": "Eastern Storm won by 6 wkts",
                   "team1": {
@@ -1207,8 +1207,8 @@
                     "longitude": "-33.5934657"
                   },
                   "currBatTeamId": 933,
-                  "seriesStartDt": "1761264000000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1761264000000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "ESTORM Won"
                 },
@@ -1246,8 +1246,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "8th Match, Group A",
                   "matchFormat": "T20",
-                  "startDate": "1763389800000",
-                  "endDate": "1763402400000",
+                  "startDate": 1763389800000,
+                  "endDate": 1763402400000,
                   "state": "Complete",
                   "status": "Bangladesh A won by 8 wkts",
                   "team1": {
@@ -1271,8 +1271,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 288,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -1302,8 +1302,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "5th Match, Group B",
                   "matchFormat": "T20",
-                  "startDate": "1763285400000",
-                  "endDate": "1763298000000",
+                  "startDate": 1763285400000,
+                  "endDate": 1763298000000,
                   "state": "Complete",
                   "status": "Oman won by 2 wkts",
                   "team1": {
@@ -1327,8 +1327,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 304,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "OMAN Won"
                 },
@@ -1358,8 +1358,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "7th Match, Group A",
                   "matchFormat": "T20",
-                  "startDate": "1763371800000",
-                  "endDate": "1763384400000",
+                  "startDate": 1763371800000,
+                  "endDate": 1763384400000,
                   "state": "Complete",
                   "status": "Sri Lanka A won by 7 wkts",
                   "team1": {
@@ -1383,8 +1383,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 43,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -1414,8 +1414,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "1st Match, Group B",
                   "matchFormat": "T20",
-                  "startDate": "1763101800000",
-                  "endDate": "1763114400000",
+                  "startDate": 1763101800000,
+                  "endDate": 1763114400000,
                   "state": "Complete",
                   "status": "Pakistan A won by 40 runs",
                   "team1": {
@@ -1439,8 +1439,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 325,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PAKA Won"
                 },
@@ -1470,8 +1470,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "6th Match, Group B",
                   "matchFormat": "T20",
-                  "startDate": "1763303400000",
-                  "endDate": "1763316000000",
+                  "startDate": 1763303400000,
+                  "endDate": 1763316000000,
                   "state": "Complete",
                   "status": "Pakistan A won by 8 wkts",
                   "team1": {
@@ -1495,8 +1495,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 325,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PAKA Won"
                 },
@@ -1526,8 +1526,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "2nd Match, Group B",
                   "matchFormat": "T20",
-                  "startDate": "1763119800000",
-                  "endDate": "1763132400000",
+                  "startDate": 1763119800000,
+                  "endDate": 1763132400000,
                   "state": "Complete",
                   "status": "India A won by 148 runs",
                   "team1": {
@@ -1551,8 +1551,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 78,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "INDA Won"
                 },
@@ -1582,8 +1582,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "4th Match, Group A",
                   "matchFormat": "T20",
-                  "startDate": "1763206200000",
-                  "endDate": "1763218800000",
+                  "startDate": 1763206200000,
+                  "endDate": 1763218800000,
                   "state": "Complete",
                   "status": "Afghanistan A won by 3 wkts",
                   "team1": {
@@ -1607,8 +1607,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 341,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "AFGA Won"
                 },
@@ -1638,8 +1638,8 @@
                   "seriesName": "ACC Mens Asia Cup Rising Stars 2025",
                   "matchDesc": "3rd Match, Group A",
                   "matchFormat": "T20",
-                  "startDate": "1763188200000",
-                  "endDate": "1763200800000",
+                  "startDate": 1763188200000,
+                  "endDate": 1763200800000,
                   "state": "Complete",
                   "status": "Bangladesh A won by 8 wkts",
                   "team1": {
@@ -1663,8 +1663,8 @@
                     "longitude": "51.460211"
                   },
                   "currBatTeamId": 288,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1764028800000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1764028800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "BANA Won"
                 },
@@ -1702,8 +1702,8 @@
                   "seriesName": "Nepal Premier League 2025",
                   "matchDesc": "1st Match",
                   "matchFormat": "T20",
-                  "startDate": "1763374500000",
-                  "endDate": "1763387100000",
+                  "startDate": 1763374500000,
+                  "endDate": 1763387100000,
                   "state": "Complete",
                   "status": "Kathmandu Gorkhas won by 5 wkts",
                   "team1": {
@@ -1727,8 +1727,8 @@
                     "longitude": "85.287199"
                   },
                   "currBatTeamId": 2937,
-                  "seriesStartDt": "1763337600000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1763337600000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -1766,8 +1766,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "22nd Match",
                   "matchFormat": "T20",
-                  "startDate": "1763287200000",
-                  "endDate": "1763299800000",
+                  "startDate": 1763287200000,
+                  "endDate": 1763299800000,
                   "state": "Complete",
                   "status": "Match abandoned due to rain (no toss)",
                   "team1": {
@@ -1790,8 +1790,8 @@
                     "latitude": "-25.859938",
                     "longitude": "28.195531"
                   },
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Abandon"
                 }
@@ -1803,8 +1803,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "20th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763204400000",
-                  "endDate": "1763217000000",
+                  "startDate": 1763204400000,
+                  "endDate": 1763217000000,
                   "state": "Complete",
                   "status": "Warriors won by 54 runs",
                   "team1": {
@@ -1828,8 +1828,8 @@
                     "longitude": "30.407238"
                   },
                   "currBatTeamId": 155,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "WAR Won"
                 },
@@ -1859,8 +1859,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "21st Match",
                   "matchFormat": "T20",
-                  "startDate": "1763292600000",
-                  "endDate": "1763305200000",
+                  "startDate": 1763292600000,
+                  "endDate": 1763305200000,
                   "state": "Complete",
                   "status": "Western Province won by 5 wkts",
                   "team1": {
@@ -1884,8 +1884,8 @@
                     "longitude": "18.459466"
                   },
                   "currBatTeamId": 917,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "WPR Won"
                 },
@@ -1915,8 +1915,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "18th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763132400000",
-                  "endDate": "1763145000000",
+                  "startDate": 1763132400000,
+                  "endDate": 1763145000000,
                   "state": "Complete",
                   "status": "Match tied and Super Over tied (Boland won the 2nd Super Over)",
                   "team1": {
@@ -1940,8 +1940,8 @@
                     "longitude": "18.970760"
                   },
                   "currBatTeamId": 1759,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "BOL Won"
                 },
@@ -1971,8 +1971,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "19th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763136000000",
-                  "endDate": "1763148600000",
+                  "startDate": 1763136000000,
+                  "endDate": 1763148600000,
                   "state": "Complete",
                   "status": "Titans won by 7 runs",
                   "team1": {
@@ -1996,8 +1996,8 @@
                     "longitude": "27.100691"
                   },
                   "currBatTeamId": 89,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "TIT Won"
                 },
@@ -2027,8 +2027,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "16th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762873200000",
-                  "endDate": "1762885800000",
+                  "startDate": 1762873200000,
+                  "endDate": 1762885800000,
                   "state": "Complete",
                   "status": "North West  -  Eastvaal Renault Dragons won by 25 runs",
                   "team1": {
@@ -2052,8 +2052,8 @@
                     "longitude": "27.100691"
                   },
                   "currBatTeamId": 922,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "NWEST Won"
                 },
@@ -2083,8 +2083,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "17th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763031600000",
-                  "endDate": "1763044200000",
+                  "startDate": 1763031600000,
+                  "endDate": 1763044200000,
                   "state": "Complete",
                   "status": "Western Province won by 9 wkts",
                   "team1": {
@@ -2108,8 +2108,8 @@
                     "longitude": "30.407238"
                   },
                   "currBatTeamId": 917,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "WPR Won"
                 },
@@ -2139,8 +2139,8 @@
                   "seriesName": "CSA T20 Challenge 2025",
                   "matchDesc": "15th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762876800000",
-                  "endDate": "1762889400000",
+                  "startDate": 1762876800000,
+                  "endDate": 1762889400000,
                   "state": "Complete",
                   "status": "Warriors won by 8 wkts",
                   "team1": {
@@ -2164,8 +2164,8 @@
                     "longitude": "25.610332"
                   },
                   "currBatTeamId": 155,
-                  "seriesStartDt": "1761696000000",
-                  "seriesEndDt": "1764633600000",
+                  "seriesStartDt": 1761696000000,
+                  "seriesEndDt": 1764633600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "WAR Won"
                 },
@@ -2208,8 +2208,8 @@
                   "seriesName": "South Africa A tour of India, 2025",
                   "matchDesc": "2nd Unofficial ODI",
                   "matchFormat": "ODI",
-                  "startDate": "1763280000000",
-                  "endDate": "1763308800000",
+                  "startDate": 1763280000000,
+                  "endDate": 1763308800000,
                   "state": "Complete",
                   "status": "India A won by 9 wkts",
                   "team1": {
@@ -2233,8 +2233,8 @@
                     "longitude": "70.793182"
                   },
                   "currBatTeamId": 78,
-                  "seriesStartDt": "1761782400000",
-                  "seriesEndDt": "1763683200000",
+                  "seriesStartDt": 1761782400000,
+                  "seriesEndDt": 1763683200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "INDA Won"
                 },
@@ -2264,8 +2264,8 @@
                   "seriesName": "South Africa A tour of India, 2025",
                   "matchDesc": "1st Unofficial ODI",
                   "matchFormat": "ODI",
-                  "startDate": "1763020800000",
-                  "endDate": "1763049600000",
+                  "startDate": 1763020800000,
+                  "endDate": 1763049600000,
                   "state": "Complete",
                   "status": "India A won by 4 wkts",
                   "team1": {
@@ -2289,8 +2289,8 @@
                     "longitude": "70.793182"
                   },
                   "currBatTeamId": 78,
-                  "seriesStartDt": "1761782400000",
-                  "seriesEndDt": "1763683200000",
+                  "seriesStartDt": 1761782400000,
+                  "seriesEndDt": 1763683200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "INDA Won"
                 },
@@ -2328,8 +2328,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Punjab won by 8 wkts",
                   "team1": {
@@ -2353,8 +2353,8 @@
                     "longitude": "76.774915"
                   },
                   "currBatTeamId": 245,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PUN Won"
                 },
@@ -2396,8 +2396,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Match drawn",
                   "team1": {
@@ -2420,8 +2420,8 @@
                     "latitude": "17.4644927",
                     "longitude": "78.256925"
                   },
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -2464,8 +2464,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1762573500000",
-                  "endDate": "1762857900000",
+                  "startDate": 1762573500000,
+                  "endDate": 1762857900000,
                   "state": "Complete",
                   "status": "Chhattisgarh won by 10 wkts",
                   "team1": {
@@ -2489,8 +2489,8 @@
                     "longitude": "81.823929"
                   },
                   "currBatTeamId": 375,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "CG Won"
                 },
@@ -2531,8 +2531,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Gujarat won by 6 wkts",
                   "team1": {
@@ -2556,8 +2556,8 @@
                     "longitude": "72.8928782"
                   },
                   "currBatTeamId": 163,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "GUJ Won"
                 },
@@ -2599,8 +2599,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Uttarakhand won by an innings and 28 runs",
                   "team1": {
@@ -2624,8 +2624,8 @@
                     "longitude": "76.46442"
                   },
                   "currBatTeamId": 467,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "UTK Won"
                 },
@@ -2661,8 +2661,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Match drawn",
                   "team1": {
@@ -2685,8 +2685,8 @@
                     "latitude": "8.5602859",
                     "longitude": "76.8449651"
                   },
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -2729,8 +2729,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Madhya Pradesh won by 3 wkts",
                   "team1": {
@@ -2754,8 +2754,8 @@
                     "longitude": "73.829683"
                   },
                   "currBatTeamId": 167,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MP Won"
                 },
@@ -2797,8 +2797,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Mumbai won by an innings and 120 runs",
                   "team1": {
@@ -2822,8 +2822,8 @@
                     "longitude": "72.866381"
                   },
                   "currBatTeamId": 95,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MUM Won"
                 },
@@ -2860,8 +2860,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1762572600000",
-                  "endDate": "1762857000000",
+                  "startDate": 1762572600000,
+                  "endDate": 1762857000000,
                   "state": "Complete",
                   "status": "Andhra won by 4 wkts",
                   "team1": {
@@ -2885,8 +2885,8 @@
                     "longitude": "83.352254"
                   },
                   "currBatTeamId": 241,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "AP Won"
                 },
@@ -2928,8 +2928,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Vidarbha won by 100 runs",
                   "team1": {
@@ -2953,8 +2953,8 @@
                     "longitude": "79.039576"
                   },
                   "currBatTeamId": 248,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "VID Won"
                 },
@@ -2997,8 +2997,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Bengal won by an innings and 120 runs",
                   "team1": {
@@ -3022,8 +3022,8 @@
                     "longitude": "72.769226"
                   },
                   "currBatTeamId": 232,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "BEN Won"
                 },
@@ -3060,8 +3060,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group C",
                   "matchFormat": "TEST",
-                  "startDate": "1762570800000",
-                  "endDate": "1762855200000",
+                  "startDate": 1762570800000,
+                  "endDate": 1762855200000,
                   "state": "Complete",
                   "status": "Match drawn",
                   "team1": {
@@ -3084,8 +3084,8 @@
                     "latitude": "23.828066",
                     "longitude": "91.297049"
                   },
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -3123,8 +3123,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Match drawn",
                   "team1": {
@@ -3147,8 +3147,8 @@
                     "latitude": "22.3234",
                     "longitude": "73.1607"
                   },
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -3184,8 +3184,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group D",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Jammu and Kashmir won by 7 wkts",
                   "team1": {
@@ -3209,8 +3209,8 @@
                     "longitude": "77.243073"
                   },
                   "currBatTeamId": 252,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "JK Won"
                 },
@@ -3252,8 +3252,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group B",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Match drawn",
                   "team1": {
@@ -3276,8 +3276,8 @@
                     "latitude": "18.674498",
                     "longitude": "73.706516"
                   },
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -3313,8 +3313,8 @@
                   "seriesName": "Ranji Trophy Elite 2025-26",
                   "matchDesc": "Elite Group A",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Uttar Pradesh won by an innings and 265 runs",
                   "team1": {
@@ -3338,8 +3338,8 @@
                     "longitude": "80.34773"
                   },
                   "currBatTeamId": 93,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "UP Won"
                 },
@@ -3385,8 +3385,8 @@
                   "seriesName": "The Ford Trophy 2025-26",
                   "matchDesc": "15th Match",
                   "matchFormat": "ODI",
-                  "startDate": "1762896600000",
-                  "endDate": "1762925400000",
+                  "startDate": 1762896600000,
+                  "endDate": 1762925400000,
                   "state": "Complete",
                   "status": "No result (due to rain)",
                   "team1": {
@@ -3409,8 +3409,8 @@
                     "latitude": "-37.670300",
                     "longitude": "176.212006"
                   },
-                  "seriesStartDt": "1761350400000",
-                  "seriesEndDt": "1771891200000",
+                  "seriesStartDt": 1761350400000,
+                  "seriesEndDt": 1771891200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -3432,8 +3432,8 @@
                   "seriesName": "The Ford Trophy 2025-26",
                   "matchDesc": "13th Match",
                   "matchFormat": "ODI",
-                  "startDate": "1762896600000",
-                  "endDate": "1762925400000",
+                  "startDate": 1762896600000,
+                  "endDate": 1762925400000,
                   "state": "Complete",
                   "status": "Canterbury won by 8 wkts",
                   "team1": {
@@ -3457,8 +3457,8 @@
                     "longitude": "172.593994"
                   },
                   "currBatTeamId": 312,
-                  "seriesStartDt": "1761350400000",
-                  "seriesEndDt": "1771891200000",
+                  "seriesStartDt": 1761350400000,
+                  "seriesEndDt": 1771891200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "CNTBRY Won"
                 },
@@ -3488,8 +3488,8 @@
                   "seriesName": "The Ford Trophy 2025-26",
                   "matchDesc": "14th Match",
                   "matchFormat": "ODI",
-                  "startDate": "1762896600000",
-                  "endDate": "1762925400000",
+                  "startDate": 1762896600000,
+                  "endDate": 1762925400000,
                   "state": "Complete",
                   "status": "Auckland won by 54 runs",
                   "team1": {
@@ -3513,8 +3513,8 @@
                     "longitude": "175.323914"
                   },
                   "currBatTeamId": 186,
-                  "seriesStartDt": "1761350400000",
-                  "seriesEndDt": "1771891200000",
+                  "seriesStartDt": 1761350400000,
+                  "seriesEndDt": 1771891200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "AKL Won"
                 },
@@ -3552,8 +3552,8 @@
                   "seriesName": "Sheffield Shield 2025-26",
                   "matchDesc": "12th Match",
                   "matchFormat": "TEST",
-                  "startDate": "1762828200000",
-                  "endDate": "1763112600000",
+                  "startDate": 1762828200000,
+                  "endDate": 1763112600000,
                   "state": "Complete",
                   "status": "Western Australia won by 1 wkt",
                   "team1": {
@@ -3577,8 +3577,8 @@
                     "longitude": "115.879585"
                   },
                   "currBatTeamId": 87,
-                  "seriesStartDt": "1759536000000",
-                  "seriesEndDt": "1774915200000",
+                  "seriesStartDt": 1759536000000,
+                  "seriesEndDt": 1774915200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "WA Won"
                 },
@@ -3621,8 +3621,8 @@
                   "seriesName": "Sheffield Shield 2025-26",
                   "matchDesc": "10th Match",
                   "matchFormat": "TEST",
-                  "startDate": "1762731000000",
-                  "endDate": "1763015400000",
+                  "startDate": 1762731000000,
+                  "endDate": 1763015400000,
                   "state": "Complete",
                   "status": "Victoria won by 300 runs",
                   "team1": {
@@ -3646,8 +3646,8 @@
                     "longitude": "151.209296"
                   },
                   "currBatTeamId": 52,
-                  "seriesStartDt": "1759536000000",
-                  "seriesEndDt": "1774915200000",
+                  "seriesStartDt": 1759536000000,
+                  "seriesEndDt": 1774915200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "VIC Won"
                 },
@@ -3690,8 +3690,8 @@
                   "seriesName": "Sheffield Shield 2025-26",
                   "matchDesc": "11th Match",
                   "matchFormat": "TEST",
-                  "startDate": "1762731000000",
-                  "endDate": "1763015400000",
+                  "startDate": 1762731000000,
+                  "endDate": 1763015400000,
                   "state": "Complete",
                   "status": "South Australia won by 3 wkts",
                   "team1": {
@@ -3715,8 +3715,8 @@
                     "longitude": "147.374013"
                   },
                   "currBatTeamId": 158,
-                  "seriesStartDt": "1759536000000",
-                  "seriesEndDt": "1774915200000",
+                  "seriesStartDt": 1759536000000,
+                  "seriesEndDt": 1774915200000,
                   "isTimeAnnounced": true,
                   "stateTitle": "SAUS Won"
                 },
@@ -3766,8 +3766,8 @@
                   "seriesName": "Australia Domestic One-Day Cup 2025-26",
                   "matchDesc": "14th Match",
                   "matchFormat": "ODI",
-                  "startDate": "1763163000000",
-                  "endDate": "1763191800000",
+                  "startDate": 1763163000000,
+                  "endDate": 1763191800000,
                   "state": "Complete",
                   "status": "Tasmania won by 4 wkts",
                   "team1": {
@@ -3791,8 +3791,8 @@
                     "longitude": "147.374013"
                   },
                   "currBatTeamId": 166,
-                  "seriesStartDt": "1757980800000",
-                  "seriesEndDt": "1772409600000",
+                  "seriesStartDt": 1757980800000,
+                  "seriesEndDt": 1772409600000,
                   "isTimeAnnounced": true,
                   "stateTitle": "TAS Won"
                 },
@@ -3830,8 +3830,8 @@
                   "seriesName": "England Lions tour of Australia, 2025",
                   "matchDesc": "3-day Warm-up Match",
                   "matchFormat": "TEST",
-                  "startDate": "1762999200000",
-                  "endDate": "1763197200000",
+                  "startDate": 1762999200000,
+                  "endDate": 1763197200000,
                   "state": "Complete",
                   "status": "England won by 5 wkts",
                   "team1": {
@@ -3855,8 +3855,8 @@
                     "longitude": "115.860457"
                   },
                   "currBatTeamId": 9,
-                  "seriesStartDt": "1762992000000",
-                  "seriesEndDt": "1765324800000",
+                  "seriesStartDt": 1762992000000,
+                  "seriesEndDt": 1765324800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "ENG Won"
                 },
@@ -3907,8 +3907,8 @@
                   "seriesName": "Ranji Trophy Plate 2025-26",
                   "matchDesc": "Plate",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Meghalaya won by an innings and 446 runs",
                   "team1": {
@@ -3932,8 +3932,8 @@
                     "longitude": "72.732645"
                   },
                   "currBatTeamId": 462,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1769558400000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1769558400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MGLY Won"
                 },
@@ -3971,8 +3971,8 @@
                   "seriesName": "Ranji Trophy Plate 2025-26",
                   "matchDesc": "Plate",
                   "matchFormat": "TEST",
-                  "startDate": "1762569900000",
-                  "endDate": "1762854300000",
+                  "startDate": 1762569900000,
+                  "endDate": 1762854300000,
                   "state": "Complete",
                   "status": "Match drawn",
                   "team1": {
@@ -3995,8 +3995,8 @@
                     "latitude": "27.177401",
                     "longitude": "88.530701"
                   },
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1769558400000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1769558400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -4032,8 +4032,8 @@
                   "seriesName": "Ranji Trophy Plate 2025-26",
                   "matchDesc": "Plate",
                   "matchFormat": "TEST",
-                  "startDate": "1762574400000",
-                  "endDate": "1762858800000",
+                  "startDate": 1762574400000,
+                  "endDate": 1762858800000,
                   "state": "Complete",
                   "status": "Manipur won by 5 wkts",
                   "team1": {
@@ -4057,8 +4057,8 @@
                     "longitude": "72.9622762"
                   },
                   "currBatTeamId": 461,
-                  "seriesStartDt": "1760486400000",
-                  "seriesEndDt": "1769558400000",
+                  "seriesStartDt": 1760486400000,
+                  "seriesEndDt": 1769558400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MNP Won"
                 },
@@ -4114,8 +4114,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "13th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763260800000",
-                  "endDate": "1763273400000",
+                  "startDate": 1763260800000,
+                  "endDate": 1763273400000,
                   "state": "Complete",
                   "status": "Melbourne Renegades Women won by 4 wkts",
                   "team1": {
@@ -4139,8 +4139,8 @@
                     "longitude": "144.980155"
                   },
                   "currBatTeamId": 358,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MLRW Won"
                 },
@@ -4170,8 +4170,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "8th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763095200000",
-                  "endDate": "1763107800000",
+                  "startDate": 1763095200000,
+                  "endDate": 1763107800000,
                   "state": "Complete",
                   "status": "Melbourne Stars Women won by 16 runs (DLS Method)",
                   "team1": {
@@ -4195,8 +4195,8 @@
                     "longitude": "138.5815232"
                   },
                   "currBatTeamId": 359,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MLSW Won"
                 },
@@ -4226,8 +4226,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "11th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763194200000",
-                  "endDate": "1763206800000",
+                  "startDate": 1763194200000,
+                  "endDate": 1763206800000,
                   "state": "Complete",
                   "status": "Sydney Sixers Women won by 24 runs",
                   "team1": {
@@ -4251,8 +4251,8 @@
                     "longitude": "151.209296"
                   },
                   "currBatTeamId": 361,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "SYSW Won"
                 },
@@ -4282,8 +4282,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "9th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763107800000",
-                  "endDate": "1763120400000",
+                  "startDate": 1763107800000,
+                  "endDate": 1763120400000,
                   "state": "Complete",
                   "status": "Adelaide Strikers Women won by 7 wkts",
                   "team1": {
@@ -4307,8 +4307,8 @@
                     "longitude": "138.5815232"
                   },
                   "currBatTeamId": 355,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "ADSW Won"
                 },
@@ -4338,8 +4338,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "7th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763021400000",
-                  "endDate": "1763034000000",
+                  "startDate": 1763021400000,
+                  "endDate": 1763034000000,
                   "state": "Complete",
                   "status": "Hobart Hurricanes Women won by 6 wkts",
                   "team1": {
@@ -4363,8 +4363,8 @@
                     "longitude": "151.209296"
                   },
                   "currBatTeamId": 357,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "HBHW Won"
                 },
@@ -4394,8 +4394,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "10th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763181600000",
-                  "endDate": "1763194200000",
+                  "startDate": 1763181600000,
+                  "endDate": 1763194200000,
                   "state": "Complete",
                   "status": "Hobart Hurricanes Women won by 16 runs (DLS Method)",
                   "team1": {
@@ -4419,8 +4419,8 @@
                     "longitude": "151.209296"
                   },
                   "currBatTeamId": 357,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "HBHW Won"
                 },
@@ -4450,8 +4450,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "12th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763248200000",
-                  "endDate": "1763260800000",
+                  "startDate": 1763248200000,
+                  "endDate": 1763260800000,
                   "state": "Complete",
                   "status": "Perth Scorchers Women won by 9 runs (DLS method)",
                   "team1": {
@@ -4475,8 +4475,8 @@
                     "longitude": "144.980155"
                   },
                   "currBatTeamId": 360,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PRSW Won"
                 },
@@ -4506,8 +4506,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "5th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762834200000",
-                  "endDate": "1762846800000",
+                  "startDate": 1762834200000,
+                  "endDate": 1762846800000,
                   "state": "Complete",
                   "status": "Melbourne Renegades Women won by 4 wkts",
                   "team1": {
@@ -4531,8 +4531,8 @@
                     "longitude": "144.980155"
                   },
                   "currBatTeamId": 358,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "MLRW Won"
                 },
@@ -4562,8 +4562,8 @@
                   "seriesName": "Womens Big Bash League 2025",
                   "matchDesc": "6th Match",
                   "matchFormat": "T20",
-                  "startDate": "1762935000000",
-                  "endDate": "1762947600000",
+                  "startDate": 1762935000000,
+                  "endDate": 1762947600000,
                   "state": "Complete",
                   "status": "Perth Scorchers Women won by 23 runs",
                   "team1": {
@@ -4587,8 +4587,8 @@
                     "longitude": "153.046143"
                   },
                   "currBatTeamId": 360,
-                  "seriesStartDt": "1762646400000",
-                  "seriesEndDt": "1765756800000",
+                  "seriesStartDt": 1762646400000,
+                  "seriesEndDt": 1765756800000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PRSW Won"
                 },
@@ -4626,8 +4626,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "6th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763361900000",
-                  "endDate": "1763374500000",
+                  "startDate": 1763361900000,
+                  "endDate": 1763374500000,
                   "state": "Complete",
                   "status": "Thailand Women won by 7 wkts",
                   "team1": {
@@ -4651,8 +4651,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 382,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -4682,8 +4682,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "5th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763346600000",
-                  "endDate": "1763359200000",
+                  "startDate": 1763346600000,
+                  "endDate": 1763359200000,
                   "state": "Complete",
                   "status": "Scotland Women won by 7 wkts",
                   "team1": {
@@ -4707,8 +4707,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 389,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "Complete"
                 },
@@ -4738,8 +4738,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "4th Match",
                   "matchFormat": "T20",
-                  "startDate": "1763188200000",
-                  "endDate": "1763200800000",
+                  "startDate": 1763188200000,
+                  "endDate": 1763200800000,
                   "state": "Complete",
                   "status": "Scotland Women won by 2 wkts",
                   "team1": {
@@ -4763,8 +4763,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 389,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "SCOW Won"
                 },
@@ -4794,8 +4794,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "1st Match",
                   "matchFormat": "T20",
-                  "startDate": "1763085600000",
-                  "endDate": "1763098200000",
+                  "startDate": 1763085600000,
+                  "endDate": 1763098200000,
                   "state": "Complete",
                   "status": "Scotland Women won by 55 runs",
                   "team1": {
@@ -4819,8 +4819,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 389,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "SCOW Won"
                 },
@@ -4850,8 +4850,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "2nd Match",
                   "matchFormat": "T20",
-                  "startDate": "1763101800000",
-                  "endDate": "1763114400000",
+                  "startDate": 1763101800000,
+                  "endDate": 1763114400000,
                   "state": "Complete",
                   "status": "Thailand Women won by 39 runs",
                   "team1": {
@@ -4875,8 +4875,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 382,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "THAIW Won"
                 },
@@ -4906,8 +4906,8 @@
                   "seriesName": "Womens T20I Quadrangular Series in Thailand 2025",
                   "matchDesc": "3rd Match",
                   "matchFormat": "T20",
-                  "startDate": "1763172000000",
-                  "endDate": "1763184600000",
+                  "startDate": 1763172000000,
+                  "endDate": 1763184600000,
                   "state": "Complete",
                   "status": "Papua New Guinea Women won by 6 wkts",
                   "team1": {
@@ -4931,8 +4931,8 @@
                     "longitude": "100.501765"
                   },
                   "currBatTeamId": 390,
-                  "seriesStartDt": "1763078400000",
-                  "seriesEndDt": "1763510400000",
+                  "seriesStartDt": 1763078400000,
+                  "seriesEndDt": 1763510400000,
                   "isTimeAnnounced": true,
                   "stateTitle": "PNGW Won"
                 },
@@ -4973,5 +4973,5 @@
     "seoTitle": "Live Cricket Score - Scorecard and Match Results",
     "webURL": "www.cricbuzz.com/live-cricket-scores/"
   },
-  "responseLastUpdated": "1763411011"
+  "responseLastUpdated": 1763411011
 }
