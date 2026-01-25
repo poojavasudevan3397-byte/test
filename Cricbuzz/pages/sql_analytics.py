@@ -123,10 +123,27 @@ def show():
 def get_all_mysql_queries() -> Dict[str, Dict[str, str]]:
     """Get all 25 MySQL queries"""
     return {
-        "Query 1: All Players from Database": {
-            "description": "Show all players currently in the MySQL database with their details",
-            "sql": "SELECT * FROM players ORDER BY player_name LIMIT 100;"
+        "Query 1: All Players from India": {
+            "description": "Find all players who represent India with their full name, playing role, batting style, and bowling style",
+            "sql": """
+                SELECT 
+                    player_name as 'Full Name',
+                    role as 'Playing Role',
+                    COALESCE(
+                        JSON_EXTRACT(meta, '$.battingStyle'),
+                        'N/A'
+                    ) as 'Batting Style',
+                    COALESCE(
+                        JSON_EXTRACT(meta, '$.bowlingStyle'),
+                        'N/A'
+                    ) as 'Bowling Style',
+                    external_player_id as 'External ID'
+                FROM players
+                WHERE country = 'India'
+                ORDER BY player_name ASC;
+            """
         },
+        
         
         "Query 2: Recent Matches": {
             "description": "Display the 20 most recent matches stored in database",

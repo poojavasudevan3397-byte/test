@@ -1,811 +1,200 @@
-# """
-# MySQL sync helpers
-
-# Provides functions to create the required MySQL tables (matches, batting_stats,
-# bowling_stats) and simple upsert helpers. Designed to work with SQLAlchemy if
-# installed, or fall back to pymysql for direct execution.
-
-# Usage (preferred):
-#     from utils.mysql_sync import get_engine_from_secrets, create_mysql_schema, upsert_match
-#     engine = get_engine_from_secrets({"host":..., "user":..., "password":..., "database":...})
-#     create_mysql_schema(engine)
-
-# Or, for a quick run (not recommended to commit credentials):
-#     python -c "from utils.mysql_sync import create_mysql_schema; create_mysql_schema({'host':'localhost', 'user':'root', 'password':'xxx', 'database':'cricketdb'})"
-
-# Note: This module does NOT write credentials to the repo. Use Streamlit secrets
-# or environment variables to keep credentials safe.
-# """
-# from typing import Any, Dict, List, Optional, cast
-# from datetime import datetime
-# import json
-
-# # Optional SQLAlchemy/pymysql imports
-# create_engine: Any = None
-# pymysql_module: Any = None
-
-# try:
-#     # type: ignore[reportMissingImports]
-#     from sqlalchemy import create_engine as sa_create_engine, text  # type: ignore[reportMissingImports]
-#     create_engine = sa_create_engine
-# except Exception:
-#     create_engine = None  # type: ignore
-
-# try:
-#     # type: ignore[reportMissingImports]
-#     import pymysql as pymysql_module  # type: ignore[reportMissingImports]
-# except Exception as e:
-#     pymysql_module = None  # type: ignore
-#     import traceback
-#     print(f"Warning: Failed to import pymysql: {e}")
-#     traceback.print_exc()
-
-
-# def _get_pymysql() -> Any:
-#     """Lazy-load pymysql to handle Streamlit import issues."""
-#     global pymysql_module
-#     if pymysql_module is not None:
-#         return pymysql_module
-#     try:
-#         import pymysql as pm
-#         pymysql_module = pm
-#         return pymysql_module
-#     except Exception as e:
-#         raise RuntimeError(f"pymysql not available: {e}")
-#         raise RuntimeError("pymysql is not available to execute statements")
-
-#     conn = pymysql_module.connect(
-#         host=secrets.get("host", "localhost"),
-#         user=secrets.get("user"),
-#         password=secrets.get("password"),
-#         database=secrets.get("dbname") or secrets.get("database"),
-#         port=int(secrets.get("port", 3306)),
-#         charset="utf8mb4",
-#         cursorclass=pymysql_module.cursors.DictCursor,
-#     )
-#     try:
-#         with conn.cursor() as cur:
-#             for stmt in statements:
-#                 cur.execute(stmt)
-#         conn.commit()
-#     finally:
-#         conn.close()
-
-
-# def create_mysql_schema(engine_or_secrets: Any) -> None:
-#     """Create matches, batting_stats, bowling_stats, and series tables in MySQL.
-
-#     Accepts either a SQLAlchemy Engine (preferred) or a secrets dict for pymysql fallback.
-#     """
-#     statements = [
-#         # Series table to store cricket series information
-#         """
-#         CREATE TABLE IF NOT EXISTS series (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_series_id VARCHAR(64) UNIQUE,
-#             series_name VARCHAR(255) NOT NULL,
-#             series_type VARCHAR(100),
-#             start_date DATETIME,
-#             end_date DATETIME,
-#             country VARCHAR(100),
-#             total_matches INT DEFAULT 0,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-
-#         # Matches table with an external_match_id to store the provider's id
-#         """
-#         CREATE TABLE IF NOT EXISTS matches (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_match_id VARCHAR(64) UNIQUE,
-#             series_id VARCHAR(64),
-#             series_name VARCHAR(255),
-#             match_desc VARCHAR(255),
-#             match_format VARCHAR(50),
-#             start_date DATETIME,
-#             end_date DATETIME,
-#             state VARCHAR(50),
-#             status TEXT,
-#             team1 VARCHAR(255),
-#             team2 VARCHAR(255),
-#             team1_id VARCHAR(64),
-#             team2_id VARCHAR(64),
-#             venue VARCHAR(255),
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-
-#         # Batting stats
-#         """
-#         CREATE TABLE IF NOT EXISTS batting_stats (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_match_id VARCHAR(64),
-#             innings_id VARCHAR(64),
-#             player_name VARCHAR(255),
-#             runs INT,
-#             balls INT,
-#             fours INT,
-#             sixes INT,
-#             strike_rate FLOAT,
-#             dismissal TEXT,
-#             meta JSON,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#             INDEX (external_match_id)
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-
-#         # Bowling stats
-#         """
-#         CREATE TABLE IF NOT EXISTS bowling_stats (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_match_id VARCHAR(64),
-#             innings_id VARCHAR(64),
-#             player_name VARCHAR(255),
-#             overs FLOAT,
-#             maidens INT,
-#             runs_conceded INT,
-#             wickets INT,
-#             economy FLOAT,
-#             meta JSON,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#             INDEX (external_match_id)
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-#         # Venues table to store venue metadata
-#         """
-#         CREATE TABLE IF NOT EXISTS venues (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_venue_id VARCHAR(64) UNIQUE,
-#             venue_name VARCHAR(255) NOT NULL,
-#             city VARCHAR(255),
-#             country VARCHAR(255),
-#             capacity INT,
-#             meta JSON,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-
-#         # Players table to store basic player info (optional, filled when available)
-#         """
-#         CREATE TABLE IF NOT EXISTS players (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_player_id VARCHAR(64) UNIQUE,
-#             player_name VARCHAR(255) NOT NULL,
-#             date_of_birth DATE,
-#             country VARCHAR(100),
-#             role VARCHAR(100),
-#             meta JSON,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-
-#         # Innings table to store high-level innings info (runs, wickets, overs, extras)
-#         """
-#         CREATE TABLE IF NOT EXISTS innings (
-#             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-#             external_match_id VARCHAR(64),
-#             innings_id VARCHAR(64),
-#             batting_team VARCHAR(255),
-#             bowling_team VARCHAR(255),
-#             runs INT,
-#             wickets INT,
-#             overs FLOAT,
-#             extras JSON,
-#             meta JSON,
-#             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-#             INDEX (external_match_id)
-#         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#         """,
-#     ]
-
-#     # If a SQLAlchemy engine was passed
-#     try:
-#         if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-#             _execute_statements_sqlalchemy(engine_or_secrets, statements)
-#             return
-#     except Exception:
-#         # fallback to secrets path below
-#         pass
-
-#     # Otherwise treat engine_or_secrets as secrets dict for pymysql
-#     if isinstance(engine_or_secrets, dict):
-#         _execute_statements_pymysql(cast(Dict[str, Any], engine_or_secrets), statements)
-#         return
-
-#     raise RuntimeError("Unsupported engine_or_secrets passed to create_mysql_schema")
-
-
-# def upsert_match(engine_or_secrets: Any, match: Dict[str, Any], debug: bool = False) -> None:
-#     """Insert or update a match record. Expects 'matchId' in match dict.
-
-#     match is a dict from the API; this function maps a few fields and upserts.
-#     """
-#     # If caller passed a wrapper (e.g. {"matchInfo": {...}}), unwrap it
-#     match_info = match.get("matchInfo")
-#     if isinstance(match_info, dict):
-#         match = cast(Dict[str, Any], match_info)
-
-#     # Narrow types for commonly used fields to avoid Pylance unknown-type warnings
-#     external_id = str(match.get("matchId") or match.get("match_id") or match.get("matchIdRaw") or "")
-#     series_id = cast(Optional[str], match.get("seriesId") or match.get("series_id") or match.get("seriesIdRaw"))
-#     series_name = cast(Optional[str], match.get("seriesName") or match.get("series_name"))
-#     match_desc = cast(Optional[str], match.get("matchDesc") or match.get("matchDescText"))
-#     match_format = cast(Optional[str], match.get("matchFormat"))
-#     start_date = _convert_timestamp_to_datetime(match.get("startDate"))
-#     end_date = _convert_timestamp_to_datetime(match.get("endDate"))
-#     state = cast(Optional[str], match.get("state"))
-#     status = cast(Optional[str], match.get("status"))
-    
-#     # Helper: robust team name extraction (prefer full name, fallback to short name)
-#     def _extract_team_name(team_val: Any) -> Optional[str]:
-#         if team_val is None:
-#             return None
-
-#         # If it's a JSON string containing an object, try to parse it
-#         if isinstance(team_val, str):
-#             s = team_val.strip()
-#             if not s:
-#                 return None
-#             if s.startswith("{") or s.startswith("["):
-#                 try:
-#                     parsed = json.loads(s)
-#                     return _extract_team_name(parsed)
-#                 except Exception:
-#                     return s or None
-#             return s
-
-#         # If it's a dict-like object, safely probe known keys
-#         if isinstance(team_val, dict):
-#             tdict = cast(Dict[str, Any], team_val)
-#             for key in ("teamName", "teamname", "teamSName", "teamSname", "name", "shortName"):
-#                 val = tdict.get(key)
-#                 if val is None:
-#                     continue
-#                 if isinstance(val, str):
-#                     v = val.strip()
-#                     if v:
-#                         return v
-#                     continue
-#                 try:
-#                     sval = str(val)
-#                     if sval:
-#                         return sval
-#                 except Exception:
-#                     continue
-#             # nested structures: sometimes name sits under a nested 'team' key
-#             nested = tdict.get("team" or "teamName", None)
-#             if isinstance(nested, dict):
-#                 return _extract_team_name(nested)
-#             return None
-
-#         # If it's a list/tuple, try first element that yields a name
-#         if isinstance(team_val, (list, tuple)):
-#             for item in cast(Iterable[Any], team_val):
-#                 nm = _extract_team_name(item)
-#                 if nm:
-#                     return nm
-#             return None
-
-#         # Fallback: coerce other scalar types to string
-#         try:
-#             return str(team_val)
-#         except Exception:
-#             return None
-
-#     # Note: normalization helper removed to avoid unused-symbol diagnostics
-
-#     # Extract team names and normalize IDs
-#     team1_obj = match.get("team1") or match.get("team_1") or match.get("teamA") or match.get("team") or match.get("teamName")
-#     team2_obj = match.get("team2") or match.get("team_2") or match.get("teamB") or match.get("team") or match.get("teamName")
-#     team1 = _extract_team_name(team1_obj)
-#     team2 = _extract_team_name(team2_obj)
-    
-#     # Extract team IDs
-#     # Normalize team IDs to strings when present
-#     if isinstance(team1_obj, dict):
-#         t1dict = cast(Dict[str, Any], team1_obj)
-#         t1 = t1dict.get("teamId")
-#         team1_id = str(t1) if t1 is not None else None
-#     else:
-#         team1_id = cast(Optional[str], match.get("team1_id"))
-
-#     if isinstance(team2_obj, dict):
-#         t2dict = cast(Dict[str, Any], team2_obj)
-#         t2 = t2dict.get("teamId")
-#         team2_id = str(t2) if t2 is not None else None
-#     else:
-#         team2_id = cast(Optional[str], match.get("team2_id"))
-    
-#     # Extract venue (can be string or nested object)
-#     venue_obj = cast(Any, match.get("venue") or match.get("venueInfo") or {})
-#     if isinstance(venue_obj, dict):
-#         venue = cast(Optional[str], venue_obj.get("ground") or venue_obj.get("venue"))  # type: ignore[union-attr]
-#     else:
-#         venue = cast(Optional[str], venue_obj)
-
-#     insert_stmt = (
-#         """
-#         INSERT INTO matches (external_match_id, series_id, series_name, match_desc, match_format, start_date, end_date, state, status, team1, team2, team1_id, team2_id, venue)
-#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-#         ON DUPLICATE KEY UPDATE
-#             series_id = VALUES(series_id),
-#             series_name = VALUES(series_name),
-#             match_desc = VALUES(match_desc),
-#             match_format = VALUES(match_format),
-#             start_date = VALUES(start_date),
-#             end_date = VALUES(end_date),
-#             state = VALUES(state),
-#             status = VALUES(status),
-#             team1 = VALUES(team1),
-#             team2 = VALUES(team2),
-#             team1_id = VALUES(team1_id),
-#             team2_id = VALUES(team2_id),
-#             venue = VALUES(venue)
-#         """
-#     )
-
-#     params: Tuple[Any, ...] = (
-#         external_id,
-#         series_id,
-#         series_name,
-#         match_desc,
-#         match_format,
-#         start_date,
-#         end_date,
-#         state,
-#         status,
-#         team1,
-#         team2,
-#         team1_id,
-#         team2_id,
-#         venue,
-#     )
-
-#     # If debug is enabled, print extracted values and avoid writing to DB
-#     if debug:
-#         try:
-#             print("[upsert_match debug] external_id:", external_id)
-#             print("[upsert_match debug] series_id:", series_id, "series_name:", series_name)
-#             print("[upsert_match debug] team1:", team1, "team1_id:", team1_id)
-#             print("[upsert_match debug] team2:", team2, "team2_id:", team2_id)
-#             # show raw team objects keys/types for diagnosis
-#             print("[upsert_match debug] raw team1_obj:", repr(cast(Dict[str, Any], team1_obj)))
-#             print("[upsert_match debug] raw team2_obj:", repr(cast(Dict[str, Any], team2_obj)))
-#             try:
-#                 print("[upsert_match debug] match keys:", list(match.keys()))
-#             except Exception:
-#                 print("[upsert_match debug] match type:", type(match))
-#         except Exception:
-#             traceback.print_exc()
-#         return
-
-#     # Use SQLAlchemy if available
-#     try:
-#         if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-#             # Use raw DBAPI connection so the DB-API paramstyle ("%s") is used
-#             raw_conn = engine_or_secrets.raw_connection()
-#             cur = None
-#             try:
-#                 cur = raw_conn.cursor()
-#                 cur.execute(insert_stmt, params)
-#                 raw_conn.commit()
-#             finally:
-#                 if cur is not None:
-#                     try:
-#                         cur.close()
-#                     except Exception:
-#                         pass
-#                 try:
-#                     raw_conn.close()
-#                 except Exception:
-#                     pass
-#             return
-#     except Exception:
-#         traceback.print_exc()
-
-#     # Fallback to pymysql using secrets dict and parameter style
-#     if isinstance(engine_or_secrets, dict):
-#         secrets = cast(Dict[str, Any], engine_or_secrets)
-#         if pymysql_module is None:
-#             raise RuntimeError("pymysql not available for upsert")
-#         # Normalize port value to an int to avoid unknown-type diagnostics
-#         port_val = secrets.get("port", 3306)
-#         try:
-#             port = int(port_val)
-#         except Exception:
-#             port = 3306
-
-#         conn = pymysql_module.connect(
-#             host=secrets.get("host", "localhost"),
-#             user=secrets.get("user"),
-#             password=secrets.get("password"),
-#             database=secrets.get("dbname") or secrets.get("database"),
-#             port=port,
-#             charset="utf8mb4",
-#             cursorclass=pymysql_module.cursors.DictCursor,
-#         )
-#         try:
-#             with conn.cursor() as cur:
-#                 cur.execute(insert_stmt, params)
-#             conn.commit()
-#         finally:
-#             conn.close()
-#         return
-
-#     raise RuntimeError("Unsupported engine_or_secrets for upsert_match")
-
-
-# def upsert_batting(engine_or_secrets: Any, external_match_id: str, innings_id: str, batting_rows: List[Dict[str, Any]]) -> None:
-#     """Insert batting rows for a match. batting_rows is a list of dicts with keys: player_name, runs, balls, fours, sixes, strike_rate, dismissal"""
-#     insert_stmt = (
-#         """
-#         INSERT INTO batting_stats (external_match_id, innings_id, player_name, runs, balls, fours, sixes, strike_rate, dismissal, meta)
-#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-#         """
-#     )
-
-#     # Prepare rows
-#     params_list: List[Tuple[Any, ...]] = []
-#     for r in batting_rows:
-#         meta = json.dumps({k: v for k, v in r.items() if k not in ["player_name", "runs", "balls", "fours", "sixes", "strike_rate", "dismissal"]})
-#         params_list.append(
-#             (
-#                 external_match_id,
-#                 innings_id,
-#                 r.get("player_name"),
-#                 r.get("runs"),
-#                 r.get("balls"),
-#                 r.get("fours"),
-#                 r.get("sixes"),
-#                 r.get("strike_rate"),
-#                 r.get("dismissal"),
-#                 meta,
-#             )
-#         )
-
-#     try:
-#         if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-#             # Use raw DBAPI connection to execute batched inserts with "%s" paramstyle
-#             raw_conn = engine_or_secrets.raw_connection()
-#             cur = None
-#             try:
-#                 cur = raw_conn.cursor()
-#                 for p in params_list:
-#                     cur.execute(insert_stmt, p)
-#                 raw_conn.commit()
-#             finally:
-#                 if cur is not None:
-#                     try:
-#                         cur.close()
-#                     except Exception:
-#                         pass
-#                 try:
-#                     raw_conn.close()
-#                 except Exception:
-#                     pass
-#             return
-#     except Exception:
-#         traceback.print_exc()
-
-#     if isinstance(engine_or_secrets, dict):
-#         secrets = cast(Dict[str, Any], engine_or_secrets)
-#         if pymysql_module is None:
-#             raise RuntimeError("pymysql not available for upsert_batting")
-#         # Normalize port for pymysql
-#         port_val = secrets.get("port", 3306)
-#         try:
-#             port = int(port_val)
-#         except Exception:
-#             port = 3306
-
-#         conn = pymysql_module.connect(
-#             host=secrets.get("host", "localhost"),
-#             user=secrets.get("user"),
-#             password=secrets.get("password"),
-#             database=secrets.get("dbname") or secrets.get("database"),
-#             port=port,
-#             charset="utf8mb4",
-#             cursorclass=pymysql_module.cursors.DictCursor,
-#         )
-#         try:
-#             with conn.cursor() as cur:
-#                 for p in params_list:
-#                     cur.execute(insert_stmt, p)
-#             conn.commit()
-#         finally:
-#             conn.close()
-#         return
-
-#     raise RuntimeError("Unsupported engine_or_secrets for upsert_batting")
-
-
-# def upsert_bowling(engine_or_secrets: Any, external_match_id: str, innings_id: str, bowling_rows: List[Dict[str, Any]]) -> None:
-#     """Insert bowling rows for a match. bowling_rows is a list of dicts with keys: player_name, overs, maidens, runs_conceded, wickets, economy"""
-#     insert_stmt = (
-#         """
-#         INSERT INTO bowling_stats (external_match_id, innings_id, player_name, overs, maidens, runs_conceded, wickets, economy, meta)
-#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-#         """
-#     )
-
-#     params_list: List[Tuple[Any, ...]] = []
-#     for r in bowling_rows:
-#         meta = json.dumps({k: v for k, v in r.items() if k not in ["player_name", "overs", "maidens", "runs_conceded", "wickets", "economy"]})
-#         params_list.append(
-#             (
-#                 external_match_id,
-#                 innings_id,
-#                 r.get("player_name"),
-#                 r.get("overs"),
-#                 r.get("maidens"),
-#                 r.get("runs_conceded"),
-#                 r.get("wickets"),
-#                 r.get("economy"),
-#                 meta,
-#             )
-#         )
-
-#     try:
-#         if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-#             # Use raw DBAPI connection to execute batched inserts with "%s" paramstyle
-#             raw_conn = engine_or_secrets.raw_connection()
-#             cur = None
-#             try:
-#                 cur = raw_conn.cursor()
-#                 for p in params_list:
-#                     cur.execute(insert_stmt, p)
-#                 raw_conn.commit()
-#             finally:
-#                 if cur is not None:
-#                     try:
-#                         cur.close()
-#                     except Exception:
-#                         pass
-#                 try:
-#                     raw_conn.close()
-#                 except Exception:
-#                     pass
-#             return
-#     except Exception:
-#         traceback.print_exc()
-
-#     if isinstance(engine_or_secrets, dict):
-#         secrets = cast(Dict[str, Any], engine_or_secrets)
-#         if pymysql_module is None:
-#             raise RuntimeError("pymysql not available for upsert_bowling")
-#         # Normalize port for pymysql
-#         port_val = secrets.get("port", 3306)
-#         try:
-#             port = int(port_val)
-#         except Exception:
-#             port = 3306
-
-#         conn = pymysql_module.connect(
-#             host=secrets.get("host", "localhost"),
-#             user=secrets.get("user"),
-#             password=secrets.get("password"),
-#             database=secrets.get("dbname") or secrets.get("database"),
-#             port=port,
-#             charset="utf8mb4",
-#             cursorclass=pymysql_module.cursors.DictCursor,
-#         )
-#         try:
-#             with conn.cursor() as cur:
-#                 for p in params_list:
-#                     cur.execute(insert_stmt, p)
-#             conn.commit()
-#         finally:
-#             conn.close()
-#         return
-
-#     raise RuntimeError("Unsupported engine_or_secrets for upsert_bowling")
-
 """
-MySQL sync helpers (corrected)
+MySQL Sync Helpers (SOURCE OF TRUTH)
 
-- Fixed team extraction & insertion
-- Added teams table and upsert helpers for series & teams
-- Ensures matches, batting_stats and bowling_stats insert the correct data
-- Works with SQLAlchemy engine (preferred) or a pymysql secrets dict
+- Creates all cricket tables
+- Provides upsert helpers
+- Used ONLY for writing data (API → DB)
 """
-from typing import Any, Dict, List, Optional, Tuple, Iterable, cast
-from datetime import datetime
-import traceback
-from typing import Any, Dict, List, Optional, cast
-from datetime import datetime
-import json # type: ignore
 
+from typing import Any, Dict, List, Tuple, cast, Optional, Union
+from datetime import datetime  #type: ignore
+import json
+import traceback #type: ignore
 
-# Optional SQLAlchemy/pymysql imports
-create_engine: Any = None
-pymysql_module: Any = None
+# Optional imports
+create_engine = None
+pymysql_module = None
 
 try:
-    # type: ignore[reportMissingImports]
-    from sqlalchemy import create_engine as sa_create_engine, text  # type: ignore[reportMissingImports]
+    from sqlalchemy import create_engine as sa_create_engine, text #type: ignore
     create_engine = sa_create_engine
 except Exception:
-    create_engine = None  # type: ignore
+    create_engine = None
 
 try:
-    # type: ignore[reportMissingImports]
-    import pymysql as pymysql_module  # type: ignore[reportMissingImports]
-except Exception as e:
-    pymysql_module = None  # type: ignore
-    import traceback
-    print(f"Warning: Failed to import pymysql: {e}")
-    traceback.print_exc()
-
-
-def _get_pymysql() -> Any:
-    """Lazy-load pymysql to handle Streamlit import issues."""
-    global pymysql_module
-    if pymysql_module is not None:
-        return pymysql_module
-    try:
-        import pymysql as pm
-        pymysql_module = pm
-        return pymysql_module
-    except Exception as e:
-        raise RuntimeError(f"pymysql not available: {e}")    
-        raise RuntimeError("pymysql is not available to execute statements")
-
-def _convert_timestamp_to_datetime(timestamp_val: Any) -> Optional[str]:
-    if timestamp_val is None or timestamp_val == "":
-        return None
-    if isinstance(timestamp_val, str):
-        # If looks numeric (ms), convert; otherwise assume string datetime
-        try:
-            numeric = float(timestamp_val)
-            timestamp_seconds = numeric / 1000.0
-            dt = datetime.fromtimestamp(timestamp_seconds)
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
-        except Exception:
-            return timestamp_val
-    try:
-        timestamp_seconds = float(timestamp_val) / 1000.0
-        dt = datetime.fromtimestamp(timestamp_seconds)
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
-    except Exception:
-        return None
-
-
-# Optional SQLAlchemy/pymysql imports
-create_engine: Any = None
-pymysql: Any = None
-try:
-    # type: ignore[reportMissingImports]
-    from sqlalchemy import create_engine, text  # type: ignore[reportMissingImports]
-    from sqlalchemy.engine import Engine  # type: ignore[reportMissingImports]
+    import pymysql as pymysql_module
 except Exception:
-    create_engine = None  # type: ignore
-    try:
-        # type: ignore[reportMissingImports]
-        import pymysql  # type: ignore[reportMissingImports]
-    except Exception:
-        pymysql = None  # type: ignore
+    pymysql_module = None
 
 
-def get_engine_from_secrets(secrets: Dict[str, Any]) -> Optional[Any]:
-    host = secrets.get("host", "localhost")
-    port = secrets.get("port", 3306)
-    user = secrets.get("user")
-    password = secrets.get("password")
-    dbname = secrets.get("dbname") or secrets.get("database")
-
-    if not (user and password and dbname):
-        raise ValueError("MySQL secrets must include user, password and database")
-
-    if create_engine is not None:
-        url = f"mysql+pymysql://{user}:{password}@{host}:{port}/{dbname}?charset=utf8mb4"
-        engine = create_engine(url)
-        return engine
-
-    return None
+# -------------------------------------------------
+# Internal helpers
+# -------------------------------------------------
+def _get_pymysql():
+    if pymysql_module is None:
+        raise RuntimeError("pymysql not installed")
+    return pymysql_module
 
 
-def _execute_statements_sqlalchemy(engine: Any, statements: List[str]) -> None:
-    from sqlalchemy import text  # type: ignore[reportMissingImports]
-    with engine.connect() as conn:
-        for stmt in statements:
-            conn.execute(text(stmt))
-        conn.commit()
+def _execute(engine_or_secrets: Any, sql: str, params: Tuple[Any, ...]) -> Optional[int]:
+    """Execute SQL safely (SQLAlchemy or pymysql). Returns rowcount when available."""
+    # SQLAlchemy engine/connection
+    if hasattr(engine_or_secrets, "connect") and create_engine:
+        raw = engine_or_secrets.raw_connection()
+        cur = raw.cursor()
+        try:
+            cur.execute(sql, params)
+            raw.commit()
+            rowcount = getattr(cur, "rowcount", None)
+        finally:
+            cur.close()
+            raw.close()
+        return rowcount
+
+    # Accept plain dicts as well as mapping-like objects (e.g. Streamlit secrets)
+    from collections.abc import Mapping
+
+    if isinstance(engine_or_secrets, Mapping):
+        secrets: Dict[str, Any] = cast(Dict[str, Any], engine_or_secrets)
+        pm = _get_pymysql()
+        try:
+            conn = pm.connect(
+                host=str(secrets.get("host") or "127.0.0.1"),
+                user=str(secrets.get("user") or "root"),
+                password=str(secrets.get("password") or ""),
+                database=str(secrets.get("database") or secrets.get("dbname") or ""),
+                port=int(secrets.get("port") or 3306),
+                charset="utf8mb4",
+            )
+            with conn.cursor() as cur:
+                rc = cur.execute(sql, params)
+            conn.commit()
+            conn.close()
+            return rc
+        except Exception as e:
+            # Log helpful debug info (do not print secrets)
+            print(f"ERROR executing SQL: {e}; SQL=<{sql[:200]}>; params={params}")
+            raise
+
+    raise RuntimeError(f"Unsupported engine_or_secrets: {type(engine_or_secrets)!r}")
 
 
-def _execute_statements_pymysql(secrets: Dict[str, Any], statements: List[str]) -> None:
-    pm = _get_pymysql()
+# -------------------------------------------------
+# Schema creation (9 tables)
+# -------------------------------------------------
+def create_mysql_schema(engine_or_secrets: Any):
+    tables = [
 
-    conn = pm.connect(
-        host=secrets.get("host", "localhost"),
-        user=secrets.get("user"),
-        password=secrets.get("password"),
-        database=secrets.get("dbname") or secrets.get("database"),
-        port=int(secrets.get("port", 3306)),
-        charset="utf8mb4",
-        cursorclass=pm.cursors.DictCursor,
-    )
-    try:
-        with conn.cursor() as cur:
-            for stmt in statements:
-                cur.execute(stmt)
-        conn.commit()
-    finally:
-        conn.close()
-
-
-def create_mysql_schema(engine_or_secrets: Any) -> None:
-    """Create required tables including teams (added)."""
-    statements = [
-        # Series table
+        # 1. Series
         """
         CREATE TABLE IF NOT EXISTS series (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_series_id VARCHAR(64) UNIQUE,
-            series_name VARCHAR(255) NOT NULL,
+            external_series_id VARCHAR(50) UNIQUE,
+            series_name VARCHAR(255),
             series_type VARCHAR(100),
             start_date DATETIME,
             end_date DATETIME,
-            country VARCHAR(100),
-            total_matches INT DEFAULT 0,
+            meta JSON,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        );
         """,
-        # Teams table (NEW)
+
+        # 2. Teams
         """
         CREATE TABLE IF NOT EXISTS teams (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_team_id VARCHAR(64) UNIQUE,
-            team_name VARCHAR(255) NOT NULL,
+            external_team_id VARCHAR(50) UNIQUE,
+            team_name VARCHAR(255),
             country VARCHAR(100),
             meta JSON,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        );
         """,
-        # Matches table
+
+        # 3. Players
+        """
+        CREATE TABLE IF NOT EXISTS players (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            external_player_id VARCHAR(50) UNIQUE,
+            player_name VARCHAR(255),
+            country VARCHAR(100),
+            role VARCHAR(100),
+            date_of_birth DATE,
+            meta JSON,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
+
+        # 4. Venues ✅ (FIXED)
+        """
+        CREATE TABLE IF NOT EXISTS venues (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            external_venue_id VARCHAR(50) UNIQUE,
+            venue_name VARCHAR(255),
+            city VARCHAR(100),
+            country VARCHAR(100),
+            timezone VARCHAR(50),
+            meta JSON,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
+
+        # 5. Matches
         """
         CREATE TABLE IF NOT EXISTS matches (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(64) UNIQUE,
-            series_id VARCHAR(64),
-            series_name VARCHAR(255),
+            external_match_id VARCHAR(50) UNIQUE,
+            external_series_id VARCHAR(50),
+            external_venue_id VARCHAR(50),
             match_desc VARCHAR(255),
-            match_format VARCHAR(50),
+            match_format VARCHAR(20),
             start_date DATETIME,
-            end_date DATETIME,
-            state VARCHAR(50),
-            status TEXT,
-            team1 VARCHAR(255),
-            team2 VARCHAR(255),
-            team1_id VARCHAR(64),
-            team2_id VARCHAR(64),
-            venue VARCHAR(255),
+            status VARCHAR(255),
+            meta JSON,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        );
         """,
-        # Batting stats
+
+        # 6. Innings
+        """
+        CREATE TABLE IF NOT EXISTS innings (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            external_match_id VARCHAR(50),
+            innings_id VARCHAR(50),
+            batting_team VARCHAR(255),
+            bowling_team VARCHAR(255),
+            runs INT,
+            wickets INT,
+            overs FLOAT,
+            meta JSON,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
+
+        # 7. Batting stats
         """
         CREATE TABLE IF NOT EXISTS batting_stats (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(64),
-            innings_id VARCHAR(64),
+            external_match_id VARCHAR(50),
+            innings_id VARCHAR(50),
             player_name VARCHAR(255),
             runs INT,
             balls INT,
             fours INT,
             sixes INT,
             strike_rate FLOAT,
-            dismissal TEXT,
+            dismissal VARCHAR(255),
             meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX (external_match_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
         """,
-        # Bowling stats
+
+        # 8. Bowling stats
         """
         CREATE TABLE IF NOT EXISTS bowling_stats (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(64),
-            innings_id VARCHAR(64),
+            external_match_id VARCHAR(50),
+            innings_id VARCHAR(50),
             player_name VARCHAR(255),
             overs FLOAT,
             maidens INT,
@@ -813,627 +202,493 @@ def create_mysql_schema(engine_or_secrets: Any) -> None:
             wickets INT,
             economy FLOAT,
             meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX (external_match_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """,
-        # Venues
-        """
-        CREATE TABLE IF NOT EXISTS venues (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_venue_id VARCHAR(64) UNIQUE,
-            venue_name VARCHAR(255) NOT NULL,
-            city VARCHAR(255),
-            country VARCHAR(255),
-            capacity INT,
-            meta JSON,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        );
         """,
-        # Players
+
+        # 9. Partnerships
         """
-        CREATE TABLE IF NOT EXISTS players (
+        CREATE TABLE IF NOT EXISTS batting_partnerships (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_player_id VARCHAR(64) UNIQUE,
-            player_name VARCHAR(255) NOT NULL,
-            date_of_birth DATE,
-            country VARCHAR(100),
-            role VARCHAR(100),
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """,
-        # Innings
-        """
-        CREATE TABLE IF NOT EXISTS innings (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(64),
-            innings_id VARCHAR(64),
-            batting_team VARCHAR(255),
-            bowling_team VARCHAR(255),
+            external_match_id VARCHAR(50),
+            innings_id VARCHAR(50),
+            player1 VARCHAR(255),
+            player2 VARCHAR(255),
             runs INT,
-            wickets INT,
-            overs FLOAT,
-            extras JSON,
+            balls INT,
             meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX (external_match_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
         """,
     ]
 
+    for stmt in tables:
+        _execute(engine_or_secrets, stmt, ())
+
+    # Backwards-compatible migrations (safe to re-run)
     try:
-        if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-            _execute_statements_sqlalchemy(engine_or_secrets, statements)
-            return
-    except Exception:
-        # fall back to pymysql path
-        pass
-
-    if isinstance(engine_or_secrets, dict):
-        _execute_statements_pymysql(cast(Dict[str, Any], engine_or_secrets), statements)
-        return
-
-    raise RuntimeError("Unsupported engine_or_secrets passed to create_mysql_schema")
+        # Older MySQL versions don't support "ADD COLUMN IF NOT EXISTS"; attempt and ignore "column exists" errors
+        _execute(engine_or_secrets, "ALTER TABLE players ADD COLUMN date_of_birth DATE", ())
+    except Exception as e:
+        msg = str(e).lower()
+        if "duplicate column" in msg or "already exists" in msg or "1060" in msg:
+            # Column already exists; nothing to do
+            pass
+        else:
+            # Log the warning but do not raise to keep schema creation resilient
+            print(f"Warning: could not add date_of_birth column: {e}")
 
 
-# -------------------------
-# Helper: robust team name extraction
-# -------------------------
-def _extract_team_name(team_val: Any) -> Optional[str]:
-    if team_val is None:
-        return None
-
-    if isinstance(team_val, str):
-        s = team_val.strip()
-        if not s:
-            return None
-        # maybe JSON in string
-        if s.startswith("{") or s.startswith("["):
-            try:
-                parsed = json.loads(s)
-                return _extract_team_name(parsed)
-            except Exception:
-                return s
-        return s
-
-    if isinstance(team_val, dict):
-        tdict = cast(Dict[str, Any], team_val)
-        for key in ("teamName", "teamname", "teamSName", "teamSname", "name", "shortName", "displayName"):
-            val = tdict.get(key)
-            if val:
-                return str(val).strip()
-        # nested checks
-        for nested_key in ("team", "teamInfo"):
-            nested = tdict.get(nested_key)
-            if isinstance(nested, dict):
-                nm = _extract_team_name(nested)
-                if nm:
-                    return nm
-        return None
-
-    if isinstance(team_val, (list, tuple)):
-        for item in cast(Iterable[Any], team_val):
-            nm = _extract_team_name(item)
-            if nm:
-                return nm
-        return None
-
-    try:
-        if isinstance(team_val, (dict, list, tuple)):
-            return json.dumps(team_val)
-        return str(cast(object, team_val))
-    except Exception:
-        return None
-
-
-def _extract_team_id(team_val: Any, fallback: Optional[str] = None) -> Optional[str]:
-    if team_val is None:
-        return None
-    if isinstance(team_val, str):
-        s = team_val.strip()
-        if s:
-            return s
-        return None
-    if isinstance(team_val, dict):
-        tdict = cast(Dict[str, Any], team_val)
-        for key in ("teamId", "id", "team_id", "externalId", "external_team_id"):
-            val = tdict.get(key)
-            if val is not None:
-                return str(val)
-    try:
-        if isinstance(team_val, (dict, list, tuple)):
-            return json.dumps(team_val)
-        return str(team_val)
-    except Exception:
-        return None
-
-
-# -------------------------
-# Upsert helpers for series & teams
-# -------------------------
-def upsert_series(engine_or_secrets: Any, external_series_id: Optional[str], series_name: Optional[str]) -> Optional[str]:
-    """Insert or update a series row. Requires external_series_id as it's the PRIMARY KEY."""
-    if not external_series_id:
-        # Can't insert without a series_id since it's the PRIMARY KEY
-        return None
-
-    # Parse series_id as integer if possible
-    try:
-        series_id = int(external_series_id)
-    except (ValueError, TypeError):
-        # If it's not numeric, we still can't use it as PRIMARY KEY
-        return None
-
-    insert_stmt = """
-        INSERT INTO series (series_id, series_name)
-        VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE series_name = VALUES(series_name)
+# -------------------------------------------------
+# UPSERT HELPERS
+# -------------------------------------------------
+def upsert_series(
+    engine_or_secrets: Any,
+    series_id: str,
+    series_name: str,
+    series_type: Optional[str] = None,
+    series_start_ms: Optional[int] = None,
+    series_end_ms: Optional[int] = None,
+) -> Optional[int]:
     """
-    params = (series_id, series_name)
-
-    # SQLAlchemy path
-    try:
-        if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-            raw_conn = engine_or_secrets.raw_connection()
-            cur = None
-            try:
-                cur = raw_conn.cursor()
-                cur.execute(insert_stmt, params)
-                raw_conn.commit()
-            finally:
-                if cur:
-                    try:
-                        cur.close()
-                    except Exception:
-                        pass
-                try:
-                    raw_conn.close()
-                except Exception:
-                    pass
-            return external_series_id
-    except Exception:
-        traceback.print_exc()
-
-    if isinstance(engine_or_secrets, dict):
-        pm = _get_pymysql()
-        secrets = cast(Dict[str, Any], engine_or_secrets)
-        port_val = secrets.get("port", 3306)
-        try:
-            port = int(port_val)
-        except Exception:
-            port = 3306
-        conn = pm.connect(
-            host=secrets.get("host", "localhost"),
-            user=secrets.get("user"),
-            password=secrets.get("password"),
-            database=secrets.get("dbname") or secrets.get("database"),
-            port=port,
-            charset="utf8mb4",
-            cursorclass=pm.cursors.DictCursor,
-        )
-        try:
-            with conn.cursor() as cur:
-                cur.execute(insert_stmt, params)
-            conn.commit()
-        finally:
-            conn.close()
-        return external_series_id
-
-    raise RuntimeError("Unsupported engine_or_secrets for upsert_series")
-
-
-def upsert_team(engine_or_secrets: Any, external_team_id: Optional[str], team_name: Optional[str]) -> Optional[str]:
-    """Insert or update a team row. Requires external_team_id as it's the PRIMARY KEY."""
-    if not external_team_id:
-        # Can't insert without a teamId since it's the PRIMARY KEY
-        return None
-
-    # Parse teamId as integer if possible
-    try:
-        team_id = int(external_team_id)
-    except (ValueError, TypeError):
-        # If it's not numeric, we still can't use it as PRIMARY KEY
-        return None
-
-    insert_stmt = """
-        INSERT INTO teams (teamId, teamName)
-        VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE teamName = VALUES(teamName)
+    Upsert a series record with optional type and start/end dates (timestamps in ms).
+    Dates are converted to datetimes if provided; existing non-null values are preserved.
     """
-    params = (team_id, team_name)
-
-    # SQLAlchemy
+    # Convert timestamps in milliseconds to Python datetimes or None
+    start_dt = None
+    end_dt = None
     try:
-        if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-            raw_conn = engine_or_secrets.raw_connection()
-            cur = None
-            try:
-                cur = raw_conn.cursor()
-                cur.execute(insert_stmt, params)
-                raw_conn.commit()
-            finally:
-                if cur:
-                    try:
-                        cur.close()
-                    except Exception:
-                        pass
-                try:
-                    raw_conn.close()
-                except Exception:
-                    pass
-            return external_team_id
+        if series_start_ms is not None and series_start_ms != 0:
+            start_dt = datetime.fromtimestamp(int(series_start_ms) / 1000)
     except Exception:
-        traceback.print_exc()
-
-    # pymysql
-    if isinstance(engine_or_secrets, dict):
-        pm = _get_pymysql()
-        secrets = cast(Dict[str, Any], engine_or_secrets)
-        port_val = secrets.get("port", 3306)
-        try:
-            port = int(port_val)
-        except Exception:
-            port = 3306
-        conn = pm.connect(
-            host=secrets.get("host", "localhost"),
-            user=secrets.get("user"),
-            password=secrets.get("password"),
-            database=secrets.get("dbname") or secrets.get("database"),
-            port=port,
-            charset="utf8mb4",
-            cursorclass=pm.cursors.DictCursor,
-        )
-        try:
-            with conn.cursor() as cur:
-                cur.execute(insert_stmt, params)
-            conn.commit()
-        finally:
-            conn.close()
-        return external_team_id
-
-    raise RuntimeError("Unsupported engine_or_secrets for upsert_team")
-
-
-# -------------------------
-# Main upsert_match (fixed)
-# -------------------------
-def upsert_match(engine_or_secrets: Any, match: Dict[str, Any], debug: bool = False) -> None:
-    """Insert or update a match record. Expects 'matchId' (or similar) in match dict."""
-    # Unwrap wrapper if present
-    match_info = match.get("matchInfo")
-    if isinstance(match_info, dict):
-        match = cast(Dict[str, Any], match_info)
-
-    external_id = str(match.get("matchId") or match.get("match_id") or match.get("matchIdRaw") or match.get("id") or "")
-    series_id_raw = match.get("seriesId") or match.get("series_id") or match.get("seriesIdRaw") or match.get("seriesExternalId")
-    series_name = cast(Optional[str], match.get("seriesName") or match.get("series_name"))
-
-    # Convert dates
-    start_date = _convert_timestamp_to_datetime(match.get("startDate"))
-    end_date = _convert_timestamp_to_datetime(match.get("endDate"))
-    state = cast(Optional[str], match.get("state"))
-    status = cast(Optional[str], match.get("status"))
-    match_desc = cast(Optional[str], match.get("matchDesc") or match.get("matchDescText"))
-    match_format = cast(Optional[str], match.get("matchFormat"))
-
-    # -----------------------
-    # Team extraction (robust)
-    # -----------------------
-    # Try many common key names, including nested teamInfo structures.
-    team1_obj = cast(Any, (
-        match.get("team1")
-        or match.get("team_1")
-        or match.get("teamA")
-        or match.get("teamOne")
-        or cast(Dict[str, Any], (match.get("teamInfo") or {})).get("team1")
-        or match.get("teamName")
-        or match.get("homeTeam")
-    ))
-    team2_obj = cast(Any, (
-        match.get("team2")
-        or match.get("team_2")
-        or match.get("teamB")
-        or match.get("teamTwo")
-        or cast(Dict[str, Any], (match.get("teamInfo") or {})).get("team2")
-        or match.get("teamName")
-        or match.get("awayTeam")
-    ))
-
-    # Extract readable names. Support both raw API shapes (team1/team2 dicts)
-    # and normalized shapes produced by `normalize_matches` (team1_name/team2_name).
-    team1 = _extract_team_name(team1_obj) or cast(Optional[str], match.get("team1_name") or match.get("team1_short") or match.get("team1SName"))
-    team2 = _extract_team_name(team2_obj) or cast(Optional[str], match.get("team2_name") or match.get("team2_short") or match.get("team2SName"))
-
-    # Extract team external IDs (if provided)
-    team1_ext_id = _extract_team_id(team1_obj) or (match.get("team1_id") or match.get("team1Id"))
-    team2_ext_id = _extract_team_id(team2_obj) or (match.get("team2_id") or match.get("team2Id"))
-
-    # Venue extraction
-    venue_obj = cast(Any, match.get("venue") or match.get("venueInfo") or {})
-    if isinstance(venue_obj, dict):
-        vdict = cast(Dict[str, Any], venue_obj)
-        venue = cast(Optional[str], vdict.get("ground") or vdict.get("venue") or vdict.get("name"))
-    else:
-        venue = cast(Optional[str], venue_obj)
-
-    # If debug, print extracted values and don't write
-    if debug:
-        try:
-            print("[upsert_match debug] external_id:", external_id)
-            print("[upsert_match debug] raw_series_id:", series_id_raw, "series_name:", series_name)
-            print("[upsert_match debug] team1:", team1, "team1_ext_id:", team1_ext_id)
-            print("[upsert_match debug] team2:", team2, "team2_ext_id:", team2_ext_id)
-            print("[upsert_match debug] venue:", venue)
-            try:
-                print("[upsert_match debug] match keys:", list(match.keys()))
-            except Exception:
-                print("[upsert_match debug] match type:", type(match))
-        except Exception:
-            traceback.print_exc()
-        return
-
-    # Upsert series and teams first, so foreign keys/ids are present
+        start_dt = None
     try:
-        series_ext_id = upsert_series(engine_or_secrets, str(series_id_raw) if series_id_raw else None, series_name)
+        if series_end_ms is not None and series_end_ms != 0:
+            end_dt = datetime.fromtimestamp(int(series_end_ms) / 1000)
     except Exception:
-        traceback.print_exc()
-        series_ext_id = series_id_raw or None
+        end_dt = None
 
-    try:
-        team1_saved_ext = upsert_team(engine_or_secrets, team1_ext_id, team1)
-    except Exception:
-        traceback.print_exc()
-        team1_saved_ext = team1_ext_id or team1
+    sql = """
+    INSERT INTO series (external_series_id, series_name, series_type, start_date, end_date, meta)
+    VALUES (%s,%s,%s,%s,%s,%s)
+    ON DUPLICATE KEY UPDATE
+        series_name = VALUES(series_name),
+        series_type = COALESCE(VALUES(series_type), series_type),
+        start_date = COALESCE(VALUES(start_date), start_date),
+        end_date = COALESCE(VALUES(end_date), end_date),
+        meta = VALUES(meta)
+    """
 
-    try:
-        team2_saved_ext = upsert_team(engine_or_secrets, team2_ext_id, team2)
-    except Exception:
-        traceback.print_exc()
-        team2_saved_ext = team2_ext_id or team2
-
-    # Finally insert / update match row
-    insert_stmt = (
-        """
-        INSERT INTO matches (external_match_id, series_id, series_name, match_desc, match_format, start_date, end_date, state, status, team1, team2, team1_id, team2_id, venue)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-            series_id = VALUES(series_id),
-            series_name = VALUES(series_name),
-            match_desc = VALUES(match_desc),
-            match_format = VALUES(match_format),
-            start_date = VALUES(start_date),
-            end_date = VALUES(end_date),
-            state = VALUES(state),
-            status = VALUES(status),
-            team1 = VALUES(team1),
-            team2 = VALUES(team2),
-            team1_id = VALUES(team1_id),
-            team2_id = VALUES(team2_id),
-            venue = VALUES(venue)
-        """
+    rc = _execute(
+        engine_or_secrets,
+        sql,
+        (
+            series_id,
+            series_name,
+            series_type,
+            start_dt,
+            end_dt,
+            json.dumps({}),
+        ),
     )
-    params: Tuple[Any, ...] = (
-        external_id,
-        series_ext_id,
-        series_name,
+    return rc
+
+
+def upsert_team(engine_or_secrets: Any, team_id: str, team_name: str, country: Optional[str] = None) -> Optional[int]:
+    """
+    Upsert a team record and optionally record its country. Existing non-null country is preserved.
+    """
+    sql = """
+    INSERT INTO teams (external_team_id, team_name, country, meta)
+    VALUES (%s,%s,%s,%s)
+    ON DUPLICATE KEY UPDATE
+        team_name = VALUES(team_name),
+        country = COALESCE(VALUES(country), country),
+        meta = VALUES(meta)
+    """
+    rc = _execute(engine_or_secrets, sql, (team_id, team_name, country, json.dumps({})))
+    return rc
+
+
+def upsert_player(engine_or_secrets: Any, player: Dict[str, Any]) -> Optional[int]:
+    """Insert or update a player record with best-effort extraction of country, role and date_of_birth."""
+    sql = """
+    INSERT INTO players (external_player_id, player_name, country, role, date_of_birth, meta)
+    VALUES (%s,%s,%s,%s,%s,%s)
+    ON DUPLICATE KEY UPDATE
+        player_name = VALUES(player_name),
+        country = COALESCE(VALUES(country), country),
+        role = COALESCE(VALUES(role), role),
+        date_of_birth = COALESCE(VALUES(date_of_birth), date_of_birth),
+        meta = VALUES(meta)
+    """
+
+    # Support a variety of player id/name fields returned by different endpoints
+    pid = player.get("id") or player.get("pid") or player.get("playerId") or player.get("player_id") or player.get("external_player_id")
+    external_id = str(pid) if pid is not None else None
+    name = player.get("name") or player.get("playerName") or player.get("player_name") or player.get("fullName") or None
+
+    # Defensive: some APIs include header rows like "BATSMEN" or "ALL ROUNDER" as 'player' objects
+    # Skip inserting those when there is no external_id and the name matches common role headings
+    def _is_role_header(n: Optional[str]) -> bool:
+        if not n:
+            return False
+        norm = n.strip().lower()
+        headers = {
+            "batsmen", "batsman", "batters", "batter", "batting",
+            "bowlers", "bowler", "bowling",
+            "all rounder", "all-rounder", "allrounder", "all rounders",
+            "wicket keeper", "wicket-keeper", "wicketkeeper",
+            "batting allrounder", "batting all-rounder"
+        }
+        return norm in headers
+
+    if external_id is None and _is_role_header(name):
+        # Skip placeholder/header entries
+        print(f"Skipping placeholder player row for name='{name}'")
+        return 0
+
+    # Country extraction (safely handle meta possibly being non-dict)
+    meta_obj = player.get("meta")
+    meta_country = None
+    if isinstance(meta_obj, dict):
+        meta_country = meta_obj.get("country")
+    country = (
+        player.get("country")
+        or player.get("nationality")
+        or player.get("country_name")
+        or meta_country
+        or None
+    )
+
+    # DOB extraction (store as-is; DB will accept YYYY-MM-DD or NULL)
+    meta_dob = None
+    if isinstance(meta_obj, dict):
+        meta_dob = meta_obj.get("dateOfBirth")
+    dob = (
+        player.get("dateOfBirth")
+        or player.get("dob")
+        or player.get("birthDate")
+        or meta_dob
+        or None
+    )
+
+    # Role extraction: prefer explicit role, else infer from batting/bowling styles in meta
+    role = player.get("role") or player.get("playingRole") or player.get("playerRole") or None
+    if not role:
+        meta_obj = player.get("meta")
+        try:
+            if isinstance(meta_obj, str):
+                meta_obj = json.loads(meta_obj)
+        except Exception:
+            meta_obj = None
+
+        bat_style = None
+        bowl_style = None
+        if isinstance(meta_obj, dict):
+            bat_style = meta_obj.get("batting_style") or meta_obj.get("battingStyle")
+            bowl_style = meta_obj.get("bowling_style") or meta_obj.get("bowlingStyle")
+        bat_style = (bat_style or player.get("battingStyle") or "")
+        bowl_style = (bowl_style or player.get("bowlingStyle") or "")
+
+        try:
+            bs = str(bat_style).lower()
+            bw = str(bowl_style).lower()
+            has_bat = bool(bs and bs.strip() and bs not in ["n/a", "none", ""])
+            has_bowl = bool(bw and bw.strip() and bw not in ["n/a", "none", ""])
+            if "wicket" in bs or "keeper" in bs:
+                role = "Wicket-keeper"
+            elif has_bat and has_bowl:
+                role = "All-rounder"
+            elif has_bat:
+                role = "Batsman"
+            elif has_bowl:
+                role = "Bowler"
+        except Exception:
+            role = role or None
+
+    rc = _execute(
+        engine_or_secrets,
+        sql,
+        (
+            external_id,
+            name,
+            country,
+            role,
+            dob,
+            json.dumps(player),
+        ),
+    )
+    return rc
+
+
+def upsert_venue(engine_or_secrets: Any, venue: Dict[str, Any]) -> Optional[int]:
+    sql = """
+    INSERT INTO venues (external_venue_id, venue_name, city, country, timezone, meta)
+    VALUES (%s,%s,%s,%s,%s,%s)
+    ON DUPLICATE KEY UPDATE venue_name = VALUES(venue_name)
+    """
+    rc = _execute(
+        engine_or_secrets,
+        sql,
+        (
+            str(venue.get("id")),
+            venue.get("ground"),
+            venue.get("city"),
+            venue.get("country"),
+            venue.get("timezone"),
+            json.dumps(venue),
+        ),
+    )
+    return rc
+
+
+def upsert_match(engine_or_secrets: Any, match: Dict[str, Any]) -> Optional[int]:
+    # Tolerate both the raw API 'matchInfo' objects and the normalized match dicts
+    def _first(*keys: str):
+        for k in keys:
+            v = match.get(k)
+            if v is not None:
+                return v
+        return None
+
+    match_id = _first("matchId", "match_id", "external_match_id")
+    series_id = _first("seriesId", "series_id", "external_series_id")
+
+    # venue may be an object under 'venueInfo' or just an id under 'external_venue_id' or 'venue'
+    venue_obj_raw = _first("venueInfo", "venue")
+    venue_id: Optional[str] = None
+    if isinstance(venue_obj_raw, dict):
+        venue_obj = cast(Dict[str, Any], venue_obj_raw)
+        vid = venue_obj.get("id")
+        if vid is not None:
+            venue_id = str(vid)
+    else:
+        if venue_obj_raw is not None:
+            venue_id = str(venue_obj_raw)
+
+    if venue_id is None:
+        ext_vid = _first("external_venue_id", "venue")
+        if ext_vid is not None:
+            venue_id = str(ext_vid)
+
+    sql = """
+    INSERT INTO matches (
+        external_match_id,
+        external_series_id,
+        external_venue_id,
         match_desc,
         match_format,
         start_date,
-        end_date,
-        state,
         status,
-        team1,
-        team2,
-        team1_saved_ext,
-        team2_saved_ext,
-        venue,
+        meta
     )
+    VALUES (%s,%s,%s,%s,%s,FROM_UNIXTIME(%s/1000),%s,%s)
+    ON DUPLICATE KEY UPDATE status = VALUES(status)
+    """
 
-    # SQLAlchemy raw connection
-    try:
-        if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-            raw_conn = engine_or_secrets.raw_connection()
-            cur = None
-            try:
-                cur = raw_conn.cursor()
-                cur.execute(insert_stmt, params)
-                raw_conn.commit()
-            finally:
-                if cur is not None:
-                    try:
-                        cur.close()
-                    except Exception:
-                        pass
-                try:
-                    raw_conn.close()
-                except Exception:
-                    pass
-            return
-    except Exception:
-        traceback.print_exc()
-
-    # pymysql fallback
-    if isinstance(engine_or_secrets, dict):
-        secrets = cast(Dict[str, Any], engine_or_secrets)
-        pm = _get_pymysql()
-        port_val = secrets.get("port", 3306)
-        try:
-            port = int(port_val)
-        except Exception:
-            port = 3306
-
-        conn = pm.connect(
-            host=secrets.get("host", "localhost"),
-            user=secrets.get("user"),
-            password=secrets.get("password"),
-            database=secrets.get("dbname") or secrets.get("database"),
-            port=port,
-            charset="utf8mb4",
-            cursorclass=pm.cursors.DictCursor,
-        )
-        try:
-            with conn.cursor() as cur:
-                cur.execute(insert_stmt, params)
-            conn.commit()
-        finally:
-            conn.close()
-        return
-
-    raise RuntimeError("Unsupported engine_or_secrets for upsert_match")
-
-
-# -------------------------
-# Batting & Bowling upserts (unchanged aside from robust param usage)
-# -------------------------
-def upsert_batting(engine_or_secrets: Any, external_match_id: str, innings_id: str, batting_rows: List[Dict[str, Any]]) -> None:
-    insert_stmt = (
-        """
-        INSERT INTO batting_stats (external_match_id, innings_id, player_name, runs, balls, fours, sixes, strike_rate, dismissal, meta)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
+    rc = _execute(
+        engine_or_secrets,
+        sql,
+        (
+            str(match_id) if match_id is not None else None,
+            str(series_id) if series_id is not None else None,
+            str(venue_id) if venue_id is not None else None,
+            _first("matchDesc", "match_desc"),
+            _first("matchFormat", "match_format"),
+            _first("startDate", "start_date") or 0,
+            _first("status"),
+            json.dumps(match),
+        ),
     )
-    params_list: List[Tuple[Any, ...]] = []
-    for r in batting_rows:
-        meta = json.dumps({k: v for k, v in r.items() if k not in ["player_name", "runs", "balls", "fours", "sixes", "strike_rate", "dismissal"]})
-        params_list.append(
+    return rc
+
+
+def upsert_batting(engine_or_secrets: Any, match_id: str, innings_id: str, rows: List[Dict[str, Any]]) -> Optional[int]:
+    sql = """
+    INSERT INTO batting_stats
+    (external_match_id, innings_id, player_name, runs, balls, fours, sixes, strike_rate, dismissal, meta)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """
+    total_rc = 0
+    for r in rows:
+        rc = _execute(
+            engine_or_secrets,
+            sql,
             (
-                external_match_id,
+                match_id,
                 innings_id,
-                r.get("player_name"),
+                r.get("name"),
                 r.get("runs"),
                 r.get("balls"),
                 r.get("fours"),
                 r.get("sixes"),
-                r.get("strike_rate"),
-                r.get("dismissal"),
-                meta,
-            )
+                r.get("strkrate"),
+                r.get("outdec"),
+                json.dumps(r),
+            ),
         )
-
-    try:
-        if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-            raw_conn = engine_or_secrets.raw_connection()
-            cur = None
-            try:
-                cur = raw_conn.cursor()
-                for p in params_list:
-                    cur.execute(insert_stmt, p)
-                raw_conn.commit()
-            finally:
-                if cur is not None:
-                    try:
-                        cur.close()
-                    except Exception:
-                        pass
-                try:
-                    raw_conn.close()
-                except Exception:
-                    pass
-            return
-    except Exception:
-        traceback.print_exc()
-
-    if isinstance(engine_or_secrets, dict):
-        secrets = cast(Dict[str, Any], engine_or_secrets)
-        pm = _get_pymysql()
-        port_val = secrets.get("port", 3306)
-        try:
-            port = int(port_val)
-        except Exception:
-            port = 3306
-        conn = pm.connect(
-            host=secrets.get("host", "localhost"),
-            user=secrets.get("user"),
-            password=secrets.get("password"),
-            database=secrets.get("dbname") or secrets.get("database"),
-            port=port,
-            charset="utf8mb4",
-            cursorclass=pm.cursors.DictCursor,
-        )
-        try:
-            with conn.cursor() as cur:
-                for p in params_list:
-                    cur.execute(insert_stmt, p)
-            conn.commit()
-        finally:
-            conn.close()
-        return
-
-    raise RuntimeError("Unsupported engine_or_secrets for upsert_batting")
+        if rc:
+            total_rc += rc
+    return total_rc
 
 
-def upsert_bowling(engine_or_secrets: Any, external_match_id: str, innings_id: str, bowling_rows: List[Dict[str, Any]]) -> None:
-    insert_stmt = (
-        """
-        INSERT INTO bowling_stats (external_match_id, innings_id, player_name, overs, maidens, runs_conceded, wickets, economy, meta)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-    )
-    params_list: List[Tuple[Any, ...]] = []
-    for r in bowling_rows:
-        meta = json.dumps({k: v for k, v in r.items() if k not in ["player_name", "overs", "maidens", "runs_conceded", "wickets", "economy"]})
-        params_list.append(
+def upsert_bowling(engine_or_secrets: Any, match_id: str, innings_id: str, rows: List[Dict[str, Any]]) -> Optional[int]:
+    sql = """
+    INSERT INTO bowling_stats
+    (external_match_id, innings_id, player_name, overs, maidens, runs_conceded, wickets, economy, meta)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """
+    total_rc = 0
+    for r in rows:
+        rc = _execute(
+            engine_or_secrets,
+            sql,
             (
-                external_match_id,
+                match_id,
                 innings_id,
-                r.get("player_name"),
+                r.get("name"),
                 r.get("overs"),
                 r.get("maidens"),
-                r.get("runs_conceded"),
+                r.get("runs"),
                 r.get("wickets"),
                 r.get("economy"),
+                json.dumps(r),
+            ),
+        )
+        if rc:
+            total_rc += rc
+    return total_rc
+def upsert_innings(
+    engine_or_secrets: Any,
+    match_id: str,
+    inning: Dict[str, Any],
+) -> Optional[int]:
+    """
+    Upsert a single innings record
+    """
+    sql = """
+    INSERT INTO innings (
+        external_match_id,
+        innings_id,
+        batting_team,
+        bowling_team,
+        runs,
+        wickets,
+        overs,
+        meta
+    )
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+    ON DUPLICATE KEY UPDATE
+        runs = VALUES(runs),
+        wickets = VALUES(wickets),
+        overs = VALUES(overs),
+        meta = VALUES(meta)
+    """
+
+    innings_id = str(inning.get("inningsId") or inning.get("inningsid") or "")
+
+    # Batting / Bowling team keys vary across APIs - accept multiple casings
+    batting_team = (
+        inning.get("batTeamName")
+        or inning.get("batteamname")
+        or inning.get("battingTeam")
+        or inning.get("batting_team")
+        or inning.get("batteam")
+        or inning.get("batteamname")
+    )
+
+    bowling_team = (
+        inning.get("bowlTeamName")
+        or inning.get("bowlteamname")
+        or inning.get("bowlingTeam")
+        or inning.get("bowling_team")
+        or inning.get("bowlteam")
+    )
+
+    # Runs may be under different keys (runs, score) or inside scoreDetails
+    runs = inning.get("runs")
+    if runs is None:
+        runs = inning.get("score")
+    if runs is None:
+        sd = inning.get("scoreDetails") or {}
+        runs = sd.get("runs") or sd.get("score")
+
+    wickets = inning.get("wickets") or inning.get("wkt") or None
+
+    overs = inning.get("overs") or inning.get("ovrs") or None
+
+    rc = _execute(
+        engine_or_secrets,
+        sql,
+        (
+            match_id,
+            innings_id,
+            batting_team,
+            bowling_team,
+            runs,
+            wickets,
+            overs,
+            json.dumps(inning),
+        ),
+    )
+    return rc
+def upsert_partnerships(
+    engine_or_secrets: Any,
+    match_id: str,
+    innings_id: str,
+    partnerships: List[Union[Dict[str, Any], str]],
+) -> Optional[int]:
+    """
+    Upsert batting partnerships for an innings.
+
+    The `partnerships` list may contain dicts (with keys like 'players', 'runs', 'balls')
+    or raw strings; dicts are processed to extract player names and stats, strings are stored
+    as raw text in the `meta` column.
+    """
+    sql = """
+    INSERT INTO batting_partnerships (
+        external_match_id,
+        innings_id,
+        player1,
+        player2,
+        runs,
+        balls,
+        meta
+    )
+    VALUES (%s,%s,%s,%s,%s,%s,%s)
+    """
+
+    total_rc = 0
+    for p in partnerships:
+        if isinstance(p, dict):
+            players = p.get("players", [])
+            player1 = players[0].get("name") if len(players) > 0 and isinstance(players[0], dict) else None
+            player2 = players[1].get("name") if len(players) > 1 and isinstance(players[1], dict) else None
+            runs = p.get("runs")
+            balls = p.get("balls")
+            meta = json.dumps(p)
+        else:
+            # Some APIs return partnership as a simple string; store as raw text in meta
+            player1 = None
+            player2 = None
+            runs = None
+            balls = None
+            meta = json.dumps({"raw": str(p)})
+
+        rc = _execute(
+            engine_or_secrets,
+            sql,
+            (
+                match_id,
+                innings_id,
+                player1,
+                player2,
+                runs,
+                balls,
                 meta,
-            )
+            ),
         )
-
-    try:
-        if hasattr(engine_or_secrets, "connect") and create_engine is not None:
-            raw_conn = engine_or_secrets.raw_connection()
-            cur = None
-            try:
-                cur = raw_conn.cursor()
-                for p in params_list:
-                    cur.execute(insert_stmt, p)
-                raw_conn.commit()
-            finally:
-                if cur is not None:
-                    try:
-                        cur.close()
-                    except Exception:
-                        pass
-                try:
-                    raw_conn.close()
-                except Exception:
-                    pass
-            return
-    except Exception:
-        traceback.print_exc()
-
-    if isinstance(engine_or_secrets, dict):
-        secrets = cast(Dict[str, Any], engine_or_secrets)
-        pm = _get_pymysql()
-        port_val = secrets.get("port", 3306)
-        try:
-            port = int(port_val)
-        except Exception:
-            port = 3306
-        conn = pm.connect(
-            host=secrets.get("host", "localhost"),
-            user=secrets.get("user"),
-            password=secrets.get("password"),
-            database=secrets.get("dbname") or secrets.get("database"),
-            port=port,
-            charset="utf8mb4",
-            cursorclass=pm.cursors.DictCursor,
-        )
-        try:
-            with conn.cursor() as cur:
-                for p in params_list:
-                    cur.execute(insert_stmt, p)
-            conn.commit()
-        finally:
-            conn.close()
-        return
-
-    raise RuntimeError("Unsupported engine_or_secrets for upsert_bowling")
+        if rc:
+            total_rc += rc
+    return total_rc

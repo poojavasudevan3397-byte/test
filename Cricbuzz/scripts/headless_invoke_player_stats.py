@@ -29,23 +29,23 @@ def _noop(*a, **k):
     print("[st]", a, k)
     return None
 
-stub.markdown = _noop
-stub.form = lambda *a, **k: DummyCM()
-stub.form_submit_button = lambda *a, **k: False
-stub.text_input = lambda *a, **k: ""
-stub.selectbox = lambda *a, **k: (a[1] if len(a) > 1 else None)
-stub.radio = lambda *a, **k: (a[1] if len(a) > 1 else None)
-stub.tabs = lambda labels: [DummyCM() for _ in labels]
-stub.number_input = lambda *a, **k: 0
-stub.button = lambda *a, **k: False
-stub.dataframe = lambda *a, **k: print("[st] dataframe called")
-stub.metric = lambda *a, **k: print("[st] metric", a)
-stub.info = lambda *a, **k: print("[st] info", a)
-stub.success = lambda *a, **k: print("[st] success", a)
-stub.warning = lambda *a, **k: print("[st] warning", a)
-stub.columns = lambda n: tuple(DummyCM() for _ in range(n))
-stub.download_button = lambda *a, **k: print("[st] download_button")
-stub.rerun = lambda *a, **k: None
+# stub.markdown = _noop
+# stub.form = lambda *a, **k: DummyCM()
+# stub.form_submit_button = lambda *a, **k: False
+# stub.text_input = lambda *a, **k: ""
+# stub.selectbox = lambda *a, **k: (a[1] if len(a) > 1 else None)
+# stub.radio = lambda *a, **k: (a[1] if len(a) > 1 else None)
+# stub.tabs = lambda labels: [DummyCM() for _ in labels]
+# stub.number_input = lambda *a, **k: 0
+# stub.button = lambda *a, **k: False
+# stub.dataframe = lambda *a, **k: print("[st] dataframe called")
+# stub.metric = lambda *a, **k: print("[st] metric", a)
+# stub.info = lambda *a, **k: print("[st] info", a)
+# stub.success = lambda *a, **k: print("[st] success", a)
+# stub.warning = lambda *a, **k: print("[st] warning", a)
+# stub.columns = lambda n: tuple(DummyCM() for _ in range(n))
+# stub.download_button = lambda *a, **k: print("[st] download_button")
+# stub.rerun = lambda *a, **k: None
 
 sys.modules['streamlit'] = stub
 

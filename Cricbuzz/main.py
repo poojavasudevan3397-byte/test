@@ -122,8 +122,8 @@ if selected == "⚡ Live Matches":
     from pages import live_matches
     live_matches.show()
 elif selected == "📊 Player Stats":
-    from pages import player_stats
-    player_stats.show()
+    from pages import player_stats_2
+    player_stats_2.show()
 elif selected == "🔍 SQL Analytics":
     from pages import sql_analytics
     sql_analytics.show()

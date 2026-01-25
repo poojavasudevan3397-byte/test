@@ -8,14 +8,25 @@
 # # Help Pylance by treating Streamlit as Any for dynamic members (markdown, columns, etc.)
 # st = cast(Any, st)
 # import pandas as pd
-# from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, cast
 # from datetime import datetime
 # import sys
 # import os
 
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# from utils.api_client import get_api_client, normalize_matches
-# from utils.mysql_sync import upsert_match, upsert_batting, upsert_bowling, create_mysql_schema
+from utils.api_client import get_api_client, normalize_matches
+from utils.mysql_sync import (
+    upsert_match,
+    upsert_batting,
+    upsert_bowling,
+    create_mysql_schema,
+    upsert_series,
+    upsert_team,
+    upsert_venue,
+    upsert_innings,
+    upsert_partnerships,
+    upsert_player,
+)
 
 
 # def show():
@@ -526,6 +537,7 @@ from typing import Any, Dict, List, cast
 from datetime import datetime
 import sys
 import os
+import requests
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.api_client import get_api_client, normalize_matches
@@ -537,7 +549,7 @@ def show():
     st.markdown("<h1 class='page-title'>⚡ Real-Time Match Updates</h1>", unsafe_allow_html=True)
 
     # API Configuration
-    api_key = st.secrets.get("RAPIDAPI_KEY", "5ff5c15309msh270be5dd89152b5p1f3d98jsnf270423b3863")
+    #api_key = st.secrets.get("RAPIDAPI_KEY", "5ff5c15309msh270be5dd89152b5p1f3d98jsnf270423b3863")
 
     # Match Type Selection
     col1, col2 = st.columns(2)
@@ -590,6 +602,8 @@ def show():
         st.session_state["auto_send_scorecards"] = include_scorecards
 
     # Fetch matches based on type
+    # Force api_key to be a string for static type checking
+    api_key: str = str(st.secrets.get("RAPIDAPI_KEY", ""))
     api_client = get_api_client(api_key)
 
     matches_data = {}
@@ -612,6 +626,7 @@ def show():
             "database": "cricketdb",
             "port": 3306,
         }
+        mysql_secrets = st.secrets.get("mysql", {})
 
         # Auto-sync to MySQL if enabled
         if st.session_state.get("auto_send_mysql", True) and matches:
@@ -634,83 +649,217 @@ def show():
                         sync_progress.progress(progress, text=f"Syncing match {idx + 1}/{total_matches}...")
                         
                         # 1. Sync Match
-                        upsert_match(mysql_secrets, m)
-                        synced_matches += 1
+                        rc = upsert_match(mysql_secrets, m)
+                        print(f"DEBUG: upsert_match rc={rc} for match {m.get('matchId', m.get('match_id'))}")
+                        if rc and rc > 0:
+                            synced_matches += 1
+
+                        # Upsert series, teams and venue if available
+                        try:
+                            series_id = m.get('seriesId') or m.get('series_id') or m.get('external_series_id') or None
+                            series_name = m.get('seriesName') or m.get('series_name') or None
+                            # Optional series metadata
+                            series_type = (
+                                m.get('seriesType')
+                                or m.get('series_type')
+                                or m.get('seriesTypeName')
+                                or m.get('series_type_name')
+                                or None
+                            )
+                            series_start = (
+                                m.get('seriesStartDt')
+                                or m.get('series_start_dt')
+                                or m.get('seriesStartDate')
+                                or m.get('series_start_date')
+                                or None
+                            )
+                            series_end = (
+                                m.get('seriesEndDt')
+                                or m.get('series_end_dt')
+                                or m.get('seriesEndDate')
+                                or m.get('series_end_date')
+                                or None
+                            )
+                            if series_id and series_name:
+                                s_rc = upsert_series(
+                                    mysql_secrets,
+                                    str(series_id),
+                                    series_name,
+                                    series_type,
+                                    series_start,
+                                    series_end,
+                                )
+                                print(f"DEBUG: upsert_series rc={s_rc} for series {series_id} name={series_name}")
+
+                            for team_key, name_key in [('team1_id', 'team1_name'), ('team2_id', 'team2_name')]:
+                                team_id = m.get(team_key) or m.get(f'external_{team_key}') or None
+                                team_name = m.get(name_key) or m.get(f'external_{name_key}') or None
+
+                                # Best-effort country extraction: team object or explicit country fields
+                                team_obj_key = team_key.replace('_id', '')
+                                team_obj = m.get(team_obj_key) or {}
+                                team_country = None
+                                if isinstance(team_obj, dict):
+                                    team_country = (
+                                        team_obj.get('country')
+                                        or team_obj.get('teamCountry')
+                                        or team_obj.get('country_name')
+                                    )
+                                if not team_country:
+                                    team_country = (
+                                        m.get(f"{team_obj_key}_country")
+                                        or m.get(f"{team_obj_key}_country_name")
+                                        or None
+                                    )
+
+                                if team_id and team_name:
+                                    t_rc = upsert_team(mysql_secrets, str(team_id), team_name, team_country)
+                                    print(f"DEBUG: upsert_team rc={t_rc} for team {team_id} name={team_name} country={team_country}")
+
+                            venue_info = m.get('venueInfo') or m.get('venue') or None
+                            if isinstance(venue_info, dict):
+                                v_rc = upsert_venue(mysql_secrets, cast(Dict[str, Any], venue_info))
+                                print(f"DEBUG: upsert_venue rc={v_rc} for venue obj")
+                        except Exception as e:
+                            print(f"Warning: Could not upsert series/team/venue: {e}")
                         
-                        # 2. Sync Players for both teams
+                        # 2. Sync Players for both teams (accept normalized or raw keys)
                         for team_key in ["team1_id", "team2_id"]:
-                            team_id = m.get(team_key)
+                            team_id = m.get(team_key) or m.get(f"external_{team_key}")
                             if team_id:
                                 try:
-                                    import requests
+                                    #import requests
                                     url = f"https://cricbuzz-cricket.p.rapidapi.com/teams/v1/{team_id}/players"
-                                    headers = {
+                                    headers: Dict[str, str] = {
                                         "x-rapidapi-key": api_key,
                                         "x-rapidapi-host": "cricbuzz-cricket.p.rapidapi.com"
                                     }
                                     resp = requests.get(url, headers=headers, timeout=10)
-                                    team_data = resp.json()
-                                    
-                                    # Insert players
-                                    import pymysql
-                                    conn = pymysql.connect(
-                                        host=mysql_secrets['host'],
-                                        user=mysql_secrets['user'],
-                                        password=mysql_secrets['password'],
-                                        database=mysql_secrets['database'],
-                                        port=mysql_secrets['port']
-                                    )
-                                    cursor = conn.cursor()
-                                    players = team_data.get('player', [])
-                                    
-                                    if isinstance(players, list):
-                                        for p in players:
-                                            if isinstance(p, dict) and 'id' in p and 'name' in p:
-                                                external_player_id = str(p.get('id', ''))
-                                                player_name = str(p.get('name', ''))
-                                                country = ''
-                                                role = ''
-                                                
-                                                import json
-                                                meta = json.dumps({
-                                                    "batting_style": str(p.get('battingStyle', '')),
-                                                    "bowling_style": str(p.get('bowlingStyle', '')),
-                                                    "image_id": str(p.get('imageId', ''))
-                                                })
-                                                
+                                    if not resp.ok:
+                                        print(f"Warning: players API returned {resp.status_code} for team {team_id}: {resp.text[:200]}")
+                                    else:
+                                        team_data = resp.json()
+
+                                        # Insert players
+                                        # Some endpoints return 'player', others 'players' — accept both
+                                        players_raw = cast(
+                                            List[Dict[str, Any]],
+                                            team_data.get('player') or team_data.get('players') or team_data.get('playerList') or team_data.get('playersList') or [],
+                                        )
+                                        print(f"DEBUG: fetched {len(players_raw)} players for team {team_id}")
+                                        for p in players_raw:
+                                            if p:
                                                 try:
-                                                    cursor.execute(
-                                                        "INSERT IGNORE INTO players (external_player_id, player_name, country, role, meta) VALUES (%s, %s, %s, %s, %s)",
-                                                        (external_player_id, player_name, country, role, meta)
-                                                    )
-                                                    if cursor.rowcount > 0:
+                                                    player_rc = upsert_player(mysql_secrets, p)
+                                                    print(f"DEBUG: upsert_player rc={player_rc} for player {p.get('name') or p.get('playerName')}")
+                                                    if player_rc and player_rc > 0:
                                                         synced_players += 1
                                                 except Exception as insert_err:
-                                                    print(f"Error inserting {player_name}: {insert_err}")
-                                    
-                                    conn.commit()
-                                    cursor.close()
-                                    conn.close()
+                                                    print(f"Error upserting player {p.get('name') or p.get('playerName')}: {insert_err}")
                                 except Exception as e:
                                     print(f"Warning: Could not sync players for team {team_id}: {e}")
-                        
-                        # 3. Sync Scorecard if enabled
                         if st.session_state.get("auto_send_scorecards", False):
-                            mid = m.get("matchId") or m.get("match_id")
+                            mid = m.get("matchId") or m.get("match_id") or m.get("external_match_id")
                             if mid:
                                 try:
                                     sc = api_client.get_scorecard(str(mid))
                                     if sc:
+                                        changed = False
                                         for inning in sc.get("scorecard", []):
                                             innings_id = inning.get("inningsId") or inning.get("inningsid") or ""
                                             if innings_id:
+                                                # Upsert innings itself
+                                                try:
+                                                    # Enrich inning object: normalize team keys and derive bowling team when possible
+                                                    enriched_inning = dict(inning)
+                                                    if "batTeamName" not in enriched_inning and "batteamname" in enriched_inning:
+                                                        enriched_inning["batTeamName"] = enriched_inning.get("batteamname")
+                                                    if "bowlTeamName" not in enriched_inning and "bowlteamname" in enriched_inning:
+                                                        enriched_inning["bowlTeamName"] = enriched_inning.get("bowlteamname")
+
+                                                    if not enriched_inning.get("bowlTeamName"):
+                                                        t1 = m.get("team1_name") or (m.get("team1") or {}).get("teamName")
+                                                        t2 = m.get("team2_name") or (m.get("team2") or {}).get("teamName")
+                                                        t1_short = m.get("team1_short") or (m.get("team1") or {}).get("teamSName")
+                                                        t2_short = m.get("team2_short") or (m.get("team2") or {}).get("teamSName")
+                                                        bat_name = enriched_inning.get("batTeamName") or enriched_inning.get("batteamname") or enriched_inning.get("batteamsname")
+                                                        if bat_name and (t1 or t2):
+                                                            if (t1_short and bat_name == t1_short) or (t1 and bat_name == t1) or (t1 and isinstance(bat_name, str) and t1.startswith(bat_name)):
+                                                                enriched_inning["bowlTeamName"] = t2
+                                                            else:
+                                                                enriched_inning["bowlTeamName"] = t1
+
+                                                    inn_rc = upsert_innings(mysql_secrets, str(mid), enriched_inning)
+                                                    print(f"DEBUG: upsert_innings rc={inn_rc} for match {mid} innings {innings_id}")
+                                                    if inn_rc and inn_rc > 0:
+                                                        changed = True
+                                                except Exception as e:
+                                                    print(f"Warning: upsert_innings failed: {e}")
+
                                                 bats = inning.get("batsman", inning.get("batsmen", []))
                                                 if bats:
-                                                    upsert_batting(mysql_secrets, str(mid), str(innings_id), bats)
+                                                    b_rc = upsert_batting(mysql_secrets, str(mid), str(innings_id), bats)
+                                                    print(f"DEBUG: upsert_batting rc={b_rc} for match {mid} innings {innings_id}")
+                                                    if b_rc and b_rc > 0:
+                                                        changed = True
+
+                                                    # Ensure player records exist for batsmen (fallback when team players API fails)
+                                                    for b in bats:
+                                                        try:
+                                                            player_id = b.get('batId') or b.get('external_player_id') or b.get('id')
+                                                            player_name = b.get('batName') or b.get('name') or b.get('player_name') or b.get('playerName')
+                                                            if player_id or player_name:
+                                                                # Pass full player object with all available metadata
+                                                                player_obj = {
+                                                                    'id': player_id,
+                                                                    'name': player_name,
+                                                                    'playerName': player_name,
+                                                                    # Include any additional metadata from scorecard
+                                                                    **{k: v for k, v in b.items() if k not in ['batId', 'batName', 'id', 'name']}
+                                                                }
+                                                                pr = upsert_player(mysql_secrets, player_obj)
+                                                                print(f"DEBUG: upsert_player (from batting) rc={pr} for player {player_name}")
+                                                                if pr and pr > 0:
+                                                                    synced_players += 1
+                                                        except Exception as e:
+                                                            print(f"Warning: upsert_player (bat) failed: {e}")
+
                                                 bowls = inning.get("bowler", inning.get("bowlers", []))
                                                 if bowls:
-                                                    upsert_bowling(mysql_secrets, str(mid), str(innings_id), bowls)
-                                        synced_scorecards += 1
+                                                    bw_rc = upsert_bowling(mysql_secrets, str(mid), str(innings_id), bowls)
+                                                    print(f"DEBUG: upsert_bowling rc={bw_rc} for match {mid} innings {innings_id}")
+                                                    if bw_rc and bw_rc > 0:
+                                                        changed = True
+
+                                                    # Ensure player records exist for bowlers
+                                                    for bw in bowls:
+                                                        try:
+                                                            player_id = bw.get('bowlId') or bw.get('external_player_id') or bw.get('id')
+                                                            player_name = bw.get('bowlName') or bw.get('name') or bw.get('player_name') or bw.get('playerName')
+                                                            if player_id or player_name:
+                                                                # Pass full player object with all available metadata
+                                                                player_obj = {
+                                                                    'id': player_id,
+                                                                    'name': player_name,
+                                                                    'playerName': player_name,
+                                                                    # Include any additional metadata from scorecard
+                                                                    **{k: v for k, v in bw.items() if k not in ['bowlId', 'bowlName', 'id', 'name']}
+                                                                }
+                                                                pr = upsert_player(mysql_secrets, player_obj)
+                                                                print(f"DEBUG: upsert_player (from bowling) rc={pr} for player {player_name}")
+                                                                if pr and pr > 0:
+                                                                    synced_players += 1
+                                                        except Exception as e:
+                                                            print(f"Warning: upsert_player (bowl) failed: {e}")
+                                                # Partnerships
+                                                partnerships = inning.get("partnerships", inning.get("partnership", []))
+                                                if partnerships:
+                                                    p_rc = upsert_partnerships(mysql_secrets, str(mid), str(innings_id), partnerships)
+                                                    print(f"DEBUG: upsert_partnerships rc={p_rc} for match {mid} innings {innings_id}")
+                                                    if p_rc and p_rc > 0:
+                                                        changed = True
+                                        if changed:
+                                            synced_scorecards += 1
                                 except Exception as e:
                                     print(f"Warning: Could not sync scorecard for match {mid}: {e}")
                     
@@ -741,7 +890,7 @@ def show():
                 sel = match_category.lower()
 
                 def _cat_ok(m: Dict[str, Any]) -> bool:
-                    mt = str(m.get("matchType", "")).lower()
+                    mt = str(m.get("matchType") or m.get("match_type") or "").lower()
                     if sel == "women":
                         return "women" in mt
                     if sel == "international":
@@ -764,7 +913,7 @@ def show():
 
         series_dict: Dict[str, List[Dict[str, Any]]] = {}
         for match in matches:
-            series_name = match.get("seriesName", "Unknown")
+            series_name = match.get("seriesName") or match.get("series_name") or "Unknown"
             if series_name not in series_dict:
                 series_dict[series_name] = []
             series_dict[series_name].append(match)
@@ -785,20 +934,20 @@ def show():
 
         summary_df = pd.DataFrame([
             {
-                "Series": m.get("seriesName", "N/A"),
+                "Series": m.get("seriesName") or m.get("series_name") or "N/A",
                 "Team 1": m.get("team1_name", "N/A"),
                 "Team 2": m.get("team2_name", "N/A"),
-                "Format": m.get("matchFormat", "N/A"),
+                "Format": m.get("matchFormat") or m.get("match_format") or "N/A",
                 "Status": m.get("status", "N/A"),
-                "Venue": m.get("venue", "N/A"),
+                "Venue": m.get("venue") or m.get("venue_name") or m.get("ground") or "N/A",
             }
             for m in matches
         ])
 
         try:
-            st.dataframe(summary_df, use_container_width=True)
+            st.dataframe(summary_df, use_container_width=True)  # type: ignore[call-arg]
         except Exception:
-            st.dataframe(summary_df)
+            st.dataframe(summary_df)  # type: ignore[call-arg]
 
     except Exception as e:
         st.error(f"Error fetching matches: {e}")
@@ -817,9 +966,9 @@ def display_match_card(match: Dict[str, Any], match_type: str, idx: int) -> None
         # Match Details
         col1_details, col2_details = st.columns(2)
         with col1_details:
-            st.write(f"**Format**: {match.get('matchFormat', 'N/A')}")
+            st.write(f"**Format**: {match.get('matchFormat') or match.get('match_format') or 'N/A'}")
             st.write(f"**Status**: {match.get('status', 'N/A')}")
-            start_date = match.get('startDate', 'N/A')
+            start_date = match.get('startDate') or match.get('start_date') or 'N/A'
             if start_date != 'N/A' and str(start_date).isdigit():
                 try:
                     date_obj = datetime.fromtimestamp(int(start_date) / 1000)
@@ -831,43 +980,92 @@ def display_match_card(match: Dict[str, Any], match_type: str, idx: int) -> None
                 st.write(f"**Date**: {start_date}")
 
         with col2_details:
-            st.write(f"**Venue**: {match.get('venue', 'N/A')}")
-            st.write(f"**City**: {match.get('city', 'N/A')}")
+            st.write(f"**Venue**: {match.get('venue') or match.get('venue_name') or match.get('ground') or 'N/A'}")
+            st.write(f"**City**: {match.get('city') or match.get('venue_city') or 'N/A'}")
 
         # Score Information
         if match_type in ["Live", "Recent"]:
             st.markdown("### Match Score")
             score_col1, score_col2 = st.columns(2)
 
+            # Try values from the normalized match first
+            match_id = match.get("matchId") or match.get("external_match_id") or match.get("match_id")
+            cache_key = f"score_cache_{match_id}" if match_id else None
+
+            t1_runs = match.get("team1_score")
+            t1_wickets = match.get("team1_wickets")
+            t1_overs = match.get("team1_overs")
+
+            t2_runs = match.get("team2_score")
+            t2_wickets = match.get("team2_wickets")
+            t2_overs = match.get("team2_overs")
+
+            # If nothing is present, try a cached score fetched from the scorecard
+            if cache_key and cache_key in st.session_state:
+                cached = st.session_state.get(cache_key, {})
+                t1_runs = t1_runs if t1_runs is not None else cached.get("team1_score")
+                t1_wickets = t1_wickets if t1_wickets is not None else cached.get("team1_wickets")
+                t1_overs = t1_overs if t1_overs is not None else cached.get("team1_overs")
+                t2_runs = t2_runs if t2_runs is not None else cached.get("team2_score")
+                t2_wickets = t2_wickets if t2_wickets is not None else cached.get("team2_wickets")
+                t2_overs = t2_overs if t2_overs is not None else cached.get("team2_overs")
+
+            # If still missing and we have an id, fetch the scorecard (best-effort) and cache it
+            if (t1_runs is None or t1_runs == "") and cache_key and cache_key not in st.session_state and match_id:
+                try:
+                    api_key: str = str(st.secrets.get("RAPIDAPI_KEY", ""))
+                    api_client = get_api_client(api_key)
+                    sc = api_client.get_scorecard(str(match_id))
+                    innings = sc.get("scorecard") or sc.get("scoreCard") or []
+                    if innings:
+                        def _safe(inn, field):
+                            return inn.get("scoreDetails", {}).get(field) if isinstance(inn, dict) else inn.get(field)
+
+                        t1 = innings[0]
+                        t1_runs = _safe(t1, "runs") or t1.get("runs") or t1.get("score")
+                        t1_wickets = _safe(t1, "wickets") or t1.get("wickets")
+                        t1_overs = _safe(t1, "overs") or t1.get("overs")
+
+                        if len(innings) > 1:
+                            t2 = innings[1]
+                            t2_runs = _safe(t2, "runs") or t2.get("runs") or t2.get("score")
+                            t2_wickets = _safe(t2, "wickets") or t2.get("wickets")
+                            t2_overs = _safe(t2, "overs") or t2.get("overs")
+
+                        st.session_state[cache_key] = {
+                            "team1_score": t1_runs,
+                            "team1_wickets": t1_wickets,
+                            "team1_overs": t1_overs,
+                            "team2_score": t2_runs,
+                            "team2_wickets": t2_wickets,
+                            "team2_overs": t2_overs,
+                        }
+                except Exception as e:
+                    print(f"Warning: could not fetch scorecard for match {match_id}: {e}")
+
             with score_col1:
-                t1_runs = match.get("team1_score", "N/A")
-                t1_wickets = match.get("team1_wickets", "N/A")
-                t1_overs = match.get("team1_overs", "N/A")
-                if str(t1_runs) != "N/A":
-                    st.write(f"**{team1}**: {t1_runs}/{t1_wickets} ({t1_overs} ov)")
+                if t1_runs is not None and str(t1_runs) != "":
+                    st.write(f"**{team1}**: {t1_runs}/{t1_wickets or 'N/A'} ({t1_overs or 'N/A'} ov)")
                 else:
                     st.write(f"**{team1}**: Score not available")
 
             with score_col2:
-                t2_runs = match.get("team2_score", "N/A")
-                t2_wickets = match.get("team2_wickets", "N/A")
-                t2_overs = match.get("team2_overs", "N/A")
-                if str(t2_runs) != "N/A":
-                    st.write(f"**{team2}**: {t2_runs}/{t2_wickets} ({t2_overs} ov)")
+                if t2_runs is not None and str(t2_runs) != "":
+                    st.write(f"**{team2}**: {t2_runs}/{t2_wickets or 'N/A'} ({t2_overs or 'N/A'} ov)")
                 else:
                     st.write(f"**{team2}**: Score not available")
             
             if st.button(
                 "📋 View Scorecard",
-                key=f"scard_{match.get('matchId')}_{idx}",
+                key=f"scard_{match.get('matchId') or match.get('external_match_id')}_{idx}",
             ):
                 st.session_state[f"show_scorecard_{idx}"] = True
             
             if st.session_state.get(f"show_scorecard_{idx}", False):
                 display_scorecard(match)
 
-        if match.get("matchDesc"):
-            st.info(f"📝 {match.get('matchDesc')}")
+        if match.get("matchDesc") or match.get('match_desc'):
+            st.info(f"📝 {match.get('matchDesc') or match.get('match_desc')}")
 
     with col2:
         pass
@@ -878,13 +1076,13 @@ def display_scorecard(match: Dict[str, Any]) -> None:
     st.markdown("---")
     st.markdown("### 📊 Full Scorecard")
 
-    match_id = match.get("matchId")
+    match_id = match.get("matchId") or match.get("external_match_id")
     if not match_id:
         st.warning("Match ID not available")
         return
 
     try:
-        api_key = st.secrets.get("RAPIDAPI_KEY", "5ff5c15309msh270be5dd89152b5p1f3d98jsnf270423b3863")
+        api_key: str = str(st.secrets.get("RAPIDAPI_KEY", "5ff5c15309msh270be5dd89152b5p1f3d98jsnf270423b3863"))
         api_client = get_api_client(api_key)
 
         with st.spinner("Loading scorecard..."):
@@ -904,19 +1102,56 @@ def display_scorecard(match: Dict[str, Any]) -> None:
                 "port": 3306,
             }
             
-            create_mysql_schema(mysql_secrets)
-            upsert_match(mysql_secrets, match)
+            # create_mysql_schema(mysql_secrets)
+            if "mysql_schema_ready" not in st.session_state:
+                create_mysql_schema(mysql_secrets)
+                st.session_state["mysql_schema_ready"] = True
+
+            rc = upsert_match(mysql_secrets, match)
+            print(f"DEBUG: display_scorecard upsert_match rc={rc} for match {match_id}")
             
             innings_list_for_db = scorecard_data.get("scorecard", [])
             for inning in innings_list_for_db:
                 innings_id = inning.get("inningsId", "")
                 if innings_id:
+                    try:
+                        enriched_inning = dict(inning)
+                        if "batTeamName" not in enriched_inning and "batteamname" in enriched_inning:
+                            enriched_inning["batTeamName"] = enriched_inning.get("batteamname")
+                        if "bowlTeamName" not in enriched_inning and "bowlteamname" in enriched_inning:
+                            enriched_inning["bowlTeamName"] = enriched_inning.get("bowlteamname")
+
+                        if not enriched_inning.get("bowlTeamName"):
+                            t1 = match.get("team1_name") or (match.get("team1") or {}).get("teamName")
+                            t2 = match.get("team2_name") or (match.get("team2") or {}).get("teamName")
+                            t1_short = match.get("team1_short") or (match.get("team1") or {}).get("teamSName")
+                            t2_short = match.get("team2_short") or (match.get("team2") or {}).get("teamSName")
+                            bat_name = enriched_inning.get("batTeamName") or enriched_inning.get("batteamname") or enriched_inning.get("batteamsname")
+                            if bat_name and (t1 or t2):
+                                if (t1_short and bat_name == t1_short) or (t1 and bat_name == t1) or (t1 and isinstance(bat_name, str) and t1.startswith(bat_name)):
+                                    enriched_inning["bowlTeamName"] = t2
+                                else:
+                                    enriched_inning["bowlTeamName"] = t1
+
+                        inn_rc = upsert_innings(mysql_secrets, str(match_id), enriched_inning)
+                        print(f"DEBUG: display_scorecard upsert_innings rc={inn_rc} for match {match_id} innings {innings_id}")
+                    except Exception as e:
+                        print(f"Warning: display_scorecard upsert_innings failed: {e}")
+
                     batsmen = inning.get("batsman", inning.get("batsmen", []))
                     if batsmen:
-                        upsert_batting(mysql_secrets, str(match_id), str(innings_id), batsmen)
+                        b_rc = upsert_batting(mysql_secrets, str(match_id), str(innings_id), batsmen)
+                        print(f"DEBUG: display_scorecard upsert_batting rc={b_rc} for match {match_id} innings {innings_id}")
+
                     bowlers = inning.get("bowler", inning.get("bowlers", []))
                     if bowlers:
-                        upsert_bowling(mysql_secrets, str(match_id), str(innings_id), bowlers)
+                        bw_rc = upsert_bowling(mysql_secrets, str(match_id), str(innings_id), bowlers)
+                        print(f"DEBUG: display_scorecard upsert_bowling rc={bw_rc} for match {match_id} innings {innings_id}")
+
+                    partnerships = inning.get("partnerships", inning.get("partnership", []))
+                    if partnerships:
+                        p_rc = upsert_partnerships(mysql_secrets, str(match_id), str(innings_id), partnerships)
+                        print(f"DEBUG: display_scorecard upsert_partnerships rc={p_rc} for match {match_id} innings {innings_id}")
             
             st.success("✅ Scorecard saved to MySQL")
         except Exception as e:
@@ -984,10 +1219,9 @@ def display_scorecard(match: Dict[str, Any]) -> None:
                         'Dismissal': f"w {extras.get('wides', 0)}, nb {extras.get('noballs', 0)}, b {extras.get('byes', 0)}, lb {extras.get('legbyes', 0)}"
                     })
                 try:
-                    st.dataframe(batting_data, use_container_width=True)
+                    st.dataframe(batting_data, use_container_width=True)  # type: ignore[call-arg]
                 except Exception:
-                    st.dataframe(batting_data)
-
+                    st.dataframe(batting_data)  # type: ignore[call-arg]
                 # Bowling Table
                 bowlers = inning.get("bowler", inning.get("bowlers", []))
                 if bowlers:
@@ -1004,9 +1238,9 @@ def display_scorecard(match: Dict[str, Any]) -> None:
                         for bw in bowlers
                     ]
                     try:
-                        st.dataframe(bowling_rows, use_container_width=True)
+                        st.dataframe(bowling_rows, use_container_width=True)  # type: ignore[call-arg]
                     except Exception:
-                        st.dataframe(bowling_rows)
+                        st.dataframe(bowling_rows)  # type: ignore[call-arg]
         else:
             st.info("Detailed scorecard not available yet")
 
