@@ -36,6 +36,7 @@ def init_database():
         print("  - batting_stats")
         print("  - bowling_stats")
         print("  - batting_partnerships")
+        print("  - toss_details")
         return True
     except Exception as e:
         print(f"❌ Error initializing database: {e}")

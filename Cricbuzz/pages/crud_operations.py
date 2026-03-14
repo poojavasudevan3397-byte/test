@@ -93,7 +93,7 @@ def show():
             try:
                 players_df = db.get_players()
                 if not players_df.empty:
-                    st.dataframe(players_df, use_container_width=True)  # type: ignore[call-arg]
+                    st.dataframe(players_df, width="stretch")  # type: ignore[call-arg]
                     st.info(f"Total Players: {len(players_df)}")
                 else:
                     st.info("No players in database")
@@ -274,7 +274,7 @@ def show():
             try:
                 matches_df = db.get_matches()
                 if not matches_df.empty:
-                    st.dataframe(matches_df, use_container_width=True)  # type: ignore[call-arg]
+                    st.dataframe(matches_df, width="stretch")  # type: ignore[call-arg]
                     st.info(f"Total Matches: {len(matches_df)}")
                 else:
                     st.info("No matches in database")
@@ -347,7 +347,7 @@ def show():
             try:
                 venues_df = db.get_venues()
                 if not venues_df.empty:
-                    st.dataframe(venues_df, use_container_width=True)  # type: ignore[call-arg]
+                    st.dataframe(venues_df, width="stretch")  # type: ignore[call-arg]
                     st.info(f"Total Venues: {len(venues_df)}")
                 else:
                     st.info("No venues in database")
@@ -382,13 +382,13 @@ def show():
                 st.markdown("**Top 5 Players by Runs**")
                 if not players_df.empty and "player_name" in players_df.columns:
                     top_players = players_df.nlargest(5, "total_runs")[["player_name", "total_runs"]]
-                    st.dataframe(top_players, use_container_width=True)  # type: ignore[call-arg]
+                    st.dataframe(top_players, width="stretch")  # type: ignore[call-arg]
 
             with col2:
                 st.markdown("**Venues by Capacity**")
                 if not venues_df.empty and "capacity" in venues_df.columns:
                     top_venues = venues_df.nlargest(5, "capacity")[["venue_name", "capacity"]]
-                    st.dataframe(top_venues, use_container_width=True)  # type: ignore[call-arg]
+                    st.dataframe(top_venues, width="stretch")  # type: ignore[call-arg]
 
         except Exception as e:
             st.error(f"Error loading summary: {e}")

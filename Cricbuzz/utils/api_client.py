@@ -1,348 +1,3 @@
-# # """
-# # Cricbuzz API Integration Module
-# # Handles all API calls to Cricbuzz Cricket API via RapidAPI
-# # """
-
-# # import requests
-# # import streamlit as st
-# # from typing import Dict, Any, List, cast
-
-# # # Treat Streamlit's dynamic members as Any so Pylance won't warn about
-# # # unknown member types like `markdown`, `warning`, `cache_resource`, etc.
-# # st = cast(Any, st)
-
-# # class CricbuzzAPI:
-# #     """Interface for Cricbuzz Cricket API"""
-
-# #     def __init__(self, api_key: str):
-# #         """Initialize API client with RapidAPI key"""
-# #         self.api_key = api_key
-# #         self.api_host = "cricbuzz-cricket.p.rapidapi.com"
-# #         self.base_url = f"https://{self.api_host}"
-# #         self.headers = {
-# #             "X-RapidAPI-Key": api_key,
-# #             "X-RapidAPI-Host": self.api_host,
-# #         }
-# #         self.timeout = 10
-
-# #     def get_live_matches(self) -> Dict[str, Any]:
-# #         """Fetch live matches"""
-# #         try:
-# #             url = f"{self.base_url}/matches/v1/live"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             # Use the exception variable so static analyzers see it's accessed
-# #             st.error(f"Failed to fetch live matches: {e}")
-# #             return {}
-
-# #     def get_upcoming_matches(self) -> Dict[str, Any]:
-# #         """Fetch upcoming matches"""
-# #         try:
-# #             url = f"{self.base_url}/matches/v1/upcoming"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             st.error(f"Failed to fetch upcoming matches: {e}")
-# #             return {}
-
-# #     def get_recent_matches(self) -> Dict[str, Any]:
-# #         """Fetch recent matches"""
-# #         try:
-# #             url = f"{self.base_url}/matches/v1/recent"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             st.error(f"Failed to fetch recent matches: {e}")
-# #             return {}
-
-# #     def get_scorecard(self, match_id: str) -> Dict[str, Any]:
-# #         """Fetch scorecard for a specific match"""
-# #         try:
-# #             url = f"{self.base_url}/mcenter/v1/{match_id}/scard"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             st.warning(f"Failed to fetch scorecard for match {match_id}: {e}")
-# #             return {}
-
-# #     def get_player_info(self, player_id: str) -> Dict[str, Any]:
-# #         """Fetch player details by player id
-
-# #         Endpoint: /stats/v1/player/{player_id}
-# #         Returns the player profile JSON (dob, country, roles, etc.)
-# #         """
-# #         try:
-# #             url = f"{self.base_url}/stats/v1/player/{player_id}"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             st.warning(f"Failed to fetch player info for {player_id}: {e}")
-# #             return {}
-
-# #     def get_venue_info(self, venue_id: str) -> Dict[str, Any]:
-# #         """Fetch venue details by venue id
-
-# #         Endpoint: /venues/v1/{venue_id}
-# #         Returns venue metadata (ground, city, timezone, coordinates)
-# #         """
-# #         try:
-# #             url = f"{self.base_url}/venues/v1/{venue_id}"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             st.warning(f"Failed to fetch venue info for {venue_id}: {e}")
-# #             return {}
-
-# #     def get_series(self) -> Dict[str, Any]:
-# #         """Fetch cricket series information"""
-# #         try:
-# #             url = f"{self.base_url}/series/v1"
-# #             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-# #             response.raise_for_status()
-# #             return response.json()
-# #         except Exception as e:
-# #             st.error(f"Failed to fetch series: {e}")
-# #             return {}
-
-
-# # @st.cache_resource
-# # def get_api_client(api_key: str) -> CricbuzzAPI:
-# #     """Get cached API client instance"""
-# #     return CricbuzzAPI(api_key)
-
-
-# # def get_player_info_by_id(api_key: str, player_id: str) -> Dict[str, Any]:
-# #     """Convenience helper to fetch player info using an API key."""
-# #     client = get_api_client(api_key)
-# #     return client.get_player_info(player_id)
-
-
-# # def get_venue_info_by_id(api_key: str, venue_id: str) -> Dict[str, Any]:
-# #     """Convenience helper to fetch venue info using an API key."""
-# #     client = get_api_client(api_key)
-# #     return client.get_venue_info(venue_id)
-
-
-# # def normalize_matches(data: Dict[str, Any]) -> List[Dict[str, Any]]:
-# #     """
-# #     Normalize API response into a flat list of matches
-    
-# #     Args:
-# #         data: Raw API response
-        
-# #     Returns:
-# #         List of normalized match dictionaries
-# #     """
-# #     matches: List[Dict[str, Any]] = []
-    
-# #     for type_match in data.get('typeMatches', []):
-# #         match_type = type_match.get('matchType', 'Unknown')
-        
-# #         for series in type_match.get('seriesMatches', []):
-# #             if 'ad' in series:
-# #                 continue
-                
-# #             wrapper = series.get('seriesAdWrapper', series)
-# #             series_name = wrapper.get('seriesName', 'N/A')
-# #             series_id = wrapper.get('seriesId', '')
-            
-# #             for match in wrapper.get('matches', []):
-# #                 match_info = match.get('matchInfo', {})
-# #                 match_score = match.get('matchScore', {})
-                
-# #                 team1 = match_info.get('team1', {})
-# #                 team2 = match_info.get('team2', {})
-# #                 venue = match_info.get('venueInfo', {})
-                
-# #                 t1_score = match_score.get('team1Score', {})
-# #                 t2_score = match_score.get('team2Score', {})
-                
-# #                 match_data: Dict[str, Any] = {
-# #                     'matchType': match_type,
-# #                     'seriesId': series_id,
-# #                     'seriesName': series_name,
-# #                     'matchId': match_info.get('matchId', ''),
-# #                     'matchDesc': match_info.get('matchDesc', ''),
-# #                     'matchFormat': match_info.get('matchFormat', ''),
-# #                     'startDate': match_info.get('startDate'),
-# #                     'endDate': match_info.get('endDate'),
-# #                     'state': match_info.get('state', 'N/A'),
-# #                     'status': match_info.get('status', 'N/A'),
-# #                     'team1_name': team1.get('teamName', 'N/A'),
-# #                     'team2_name': team2.get('teamName', 'N/A'),
-# #                     'team1_short': team1.get('teamSName', ''),
-# #                     'team2_short': team2.get('teamSName', ''),
-# #                     'team1_id': team1.get('teamId', ''),
-# #                     'team2_id': team2.get('teamId', ''),
-# #                     'venue': venue.get('ground', 'N/A'),
-# #                     'city': venue.get('city', 'N/A'),
-# #                     'country': venue.get('country', 'N/A'),
-# #                     'team1_score': t1_score.get('inngs1', {}).get('runs', 'N/A'),
-# #                     'team1_wickets': t1_score.get('inngs1', {}).get('wickets', 'N/A'),
-# #                     'team1_overs': t1_score.get('inngs1', {}).get('overs', 'N/A'),
-# #                     'team2_score': t2_score.get('inngs1', {}).get('runs', 'N/A'),
-# #                     'team2_wickets': t2_score.get('inngs1', {}).get('wickets', 'N/A'),
-# #                     'team2_overs': t2_score.get('inngs1', {}).get('overs', 'N/A'),
-# #                 }
-                
-# #                 matches.append(match_data)  # type: ignore[attr-defined]
-    
-# #     return matches
-
-
-
-# """
-# Cricbuzz API Integration Module
-# Handles all API calls to Cricbuzz Cricket API via RapidAPI
-# """
-
-# import requests
-# import streamlit as st
-# from typing import Dict, Any, List, cast
-
-# # FIX: cast Streamlit to Any only once
-# st = cast(Any, st)
-
-
-# class CricbuzzAPI:
-#     """Interface for Cricbuzz Cricket API"""
-
-#     def __init__(self, api_key: str):
-#         """Initialize API client with RapidAPI key"""
-#         self.api_key = api_key
-#         self.api_host = "cricbuzz-cricket.p.rapidapi.com"
-#         self.base_url = f"https://{self.api_host}"
-#         self.headers = {
-#             "X-RapidAPI-Key": api_key,
-#             "X-RapidAPI-Host": self.api_host,
-#         }
-#         self.timeout = 10
-
-#     # FIX: central request handler for safety
-#     def _get(self, endpoint: str) -> Dict[str, Any]:
-#         try:
-#             url = f"{self.base_url}{endpoint}"
-#             response = requests.get(url, headers=self.headers, timeout=self.timeout)
-#             response.raise_for_status()
-#             return response.json()
-#         except Exception as e:
-#             st.error(f"API request failed ({endpoint}): {e}")
-#             return {}
-
-#     def get_live_matches(self) -> Dict[str, Any]:
-#         return self._get("/matches/v1/live")
-
-#     def get_upcoming_matches(self) -> Dict[str, Any]:
-#         return self._get("/matches/v1/upcoming")
-
-#     def get_recent_matches(self) -> Dict[str, Any]:
-#         return self._get("/matches/v1/recent")
-
-#     def get_scorecard(self, match_id: str) -> Dict[str, Any]:
-#         return self._get(f"/mcenter/v1/{match_id}/scard")
-
-#     def get_player_info(self, player_id: str) -> Dict[str, Any]:
-#         return self._get(f"/stats/v1/player/{player_id}")
-
-#     def get_venue_info(self, venue_id: str) -> Dict[str, Any]:
-#         return self._get(f"/venues/v1/{venue_id}")
-
-#     def get_series(self) -> Dict[str, Any]:
-#         return self._get("/series/v1")
-
-
-# # FIX: cache_data is safer than cache_resource for API clients
-# @st.cache_data(show_spinner=False)
-# def get_api_client(api_key: str) -> CricbuzzAPI:
-#     return CricbuzzAPI(api_key)
-
-
-# def get_player_info_by_id(api_key: str, player_id: str) -> Dict[str, Any]:
-#     return get_api_client(api_key).get_player_info(player_id)
-
-
-# def get_venue_info_by_id(api_key: str, venue_id: str) -> Dict[str, Any]:
-#     return get_api_client(api_key).get_venue_info(venue_id)
-
-
-# def normalize_matches(data: Dict[str, Any]) -> List[Dict[str, Any]]:
-#     """
-#     Normalize API response into a flat list of matches
-#     """
-
-#     matches: List[Dict[str, Any]] = []
-
-#     for type_match in data.get("typeMatches", []):
-#         match_type = type_match.get("matchType", "Unknown")
-
-#         for series in type_match.get("seriesMatches", []):
-
-#             # FIX: correct ad detection
-#             wrapper = series.get("seriesAdWrapper")
-#             if not wrapper:
-#                 continue
-
-#             series_name = wrapper.get("seriesName", "N/A")
-#             series_id = wrapper.get("seriesId", "")
-
-#             for match in wrapper.get("matches", []):
-#                 match_info = match.get("matchInfo", {})
-#                 match_score = match.get("matchScore", {})
-
-#                 team1 = match_info.get("team1", {})
-#                 team2 = match_info.get("team2", {})
-#                 venue = match_info.get("venueInfo", {})
-
-#                 # FIX: handle multiple innings safely
-#                 def extract_score(team_score: Dict[str, Any]) -> Dict[str, Any]:
-#                     for k in ("inngs1", "inngs2", "inngs3", "inngs4"):
-#                         if k in team_score:
-#                             return team_score[k]
-#                     return {}
-
-#                 t1 = extract_score(match_score.get("team1Score", {}))
-#                 t2 = extract_score(match_score.get("team2Score", {}))
-
-#                 match_data: Dict[str, Any] = {
-#                     "matchType": match_type,
-#                     "seriesId": series_id,
-#                     "seriesName": series_name,
-#                     "matchId": match_info.get("matchId"),
-#                     "matchDesc": match_info.get("matchDesc"),
-#                     "matchFormat": match_info.get("matchFormat"),
-#                     "startDate": match_info.get("startDate"),
-#                     "endDate": match_info.get("endDate"),
-#                     "state": match_info.get("state"),
-#                     "status": match_info.get("status"),
-#                     "team1_name": team1.get("teamName"),
-#                     "team2_name": team2.get("teamName"),
-#                     "team1_short": team1.get("teamSName"),
-#                     "team2_short": team2.get("teamSName"),
-#                     "team1_id": team1.get("teamId"),
-#                     "team2_id": team2.get("teamId"),
-#                     "venue": venue.get("ground"),
-#                     "city": venue.get("city"),
-#                     "country": venue.get("country"),
-#                     "team1_score": t1.get("runs"),
-#                     "team1_wickets": t1.get("wickets"),
-#                     "team1_overs": t1.get("overs"),
-#                     "team2_score": t2.get("runs"),
-#                     "team2_wickets": t2.get("wickets"),
-#                     "team2_overs": t2.get("overs"),
-#                 }
-
-#                 matches.append(match_data)
-
-#     return matches
-
-
 """
 Cricbuzz API Client
 -------------------
@@ -441,9 +96,6 @@ class CricbuzzAPIClient:
         """Fetch all players for a given team"""
         return self._get(f"/teams/v1/{team_id}/players")
 
-    # ---------------------------------------------------------
-    # Optional enrichers
-    # ---------------------------------------------------------
     def get_player_profile(self, player_id: str) -> Dict[str, Any]:
         """Fetch player profile from /stats/v1/player/{player_id}
         
@@ -452,7 +104,48 @@ class CricbuzzAPIClient:
         return self._get(f"/stats/v1/player/{player_id}")
 
     def get_venue_profile(self, venue_id: str) -> Dict[str, Any]:
-        return self._get(f"/venues/v1/{venue_id}")
+        return self._get(f"/venues/v1/{venue_id}/matches")
+
+    def get_all_teams_with_country(self) -> Dict[str, Dict[str, Any]]:
+        """Fetch teams from all categories and return as {team_id: {name, country, ...}}"""
+        all_teams: Dict[str, Dict[str, Any]] = {}
+        
+        for endpoint in [
+            "/teams/v1/international",
+            "/teams/v1/league",
+            "/teams/v1/domestic",
+            "/teams/v1/women"
+        ]:
+            try:
+                resp = self._get(endpoint)
+                for team in resp.get("teams", []):
+                    # Support multiple possible id fields returned by different endpoints
+                    raw_id = team.get("id") or team.get("teamId") or team.get("team_id")
+                    if raw_id is None:
+                        continue
+                    team_id = str(raw_id)
+
+                    # Normalize name and country fields from various payload shapes
+                    name = team.get("name") or team.get("teamName") or team.get("team_name")
+                    country = (
+                        team.get("countryName")
+                        or team.get("country")
+                        or (team.get("teamInfo") or {}).get("country")
+                        or team.get("country_name")
+                        or name
+                    )
+
+                    all_teams[team_id] = {
+                        "id": team_id,
+                        "name": name,
+                        "country": country,
+                        "type": team.get("type"),
+                    }
+            except Exception:
+                # Silently skip if endpoint fails or team list not available
+                pass
+        
+        return all_teams
 
     # ---------------------------------------------------------
     # Internal request helper
@@ -518,6 +211,9 @@ def normalize_matches(data: Dict[str, Any]) -> List[Dict[str, Any]]:
                     "venue_name": venue.get("ground"),
                     "venue_city": venue.get("city"),
                     "venue_country": venue.get("country"),
+                    "series_start_date": info.get("seriesStartDt"),
+                    "series_end_date": info.get("seriesEndDt"),
+                    "series_type": info.get("matchFormat"),
                 })
 
     return matches
@@ -610,13 +306,13 @@ def extract_partnerships(scorecard: Dict[str, Any]) -> List[Dict[str, Any]]:
 
         for p in partnerships:
             rows.append({
-                "innings_id": innings_id,
+                "Innings_ID": innings_id,
                 "wicket_number": p.get("wkts"),
-                "batsman1_name": p.get("bat1Name"),
-                "batsman2_name": p.get("bat2Name"),
-                "runs": p.get("runs"),
-                "balls": p.get("balls"),
-                "meta": p,
+                "Player1": p.get("bat1Name"),
+                "Player2": p.get("bat2Name"),
+                "Runs": p.get("runs"),
+                "Balls": p.get("balls"),
+                "Meta": p,
             })
 
     return rows
@@ -632,29 +328,113 @@ def extract_player_metadata(profile: Dict[str, Any]) -> Dict[str, Any]:
     
     The /stats/v1/player/{player_id} endpoint returns:
     {
-        "id": 6635,
-        "name": "Virat Kohli",
-        "country": "India",
-        "dateOfBirth": "1988-11-05",
-        "role": "Batsman" or "Bowler" or "All-rounder" or "Wicket-keeper",
+        "Player_ID": 6635,
+        "Player_Name": "Virat Kohli",
+        "Country": "India",
+        "DOB": "1988-11-05",
+        "Role": "Batsman" or "Bowler" or "All-rounder" or "Wicket-keeper",
         ... other fields
     }
     
     Returns a dict with normalized keys for upsert_player():
     {
-        "id": player_id,
-        "name": player_name,
-        "country": country,
-        "date_of_birth": DOB date string,
-        "role": role string
+        "Player_ID": player_id,
+        "Player_Name": player_name,
+        "Country": country,
+        "DOB": DOB date string,
+        "Role": role string
     }
     """
     return {
-        "id": profile.get("id"),
-        "name": profile.get("name"),
-        "country": profile.get("country"),
-        "date_of_birth": profile.get("dateOfBirth"),
-        "role": profile.get("role"),
+        "Player_ID": profile.get("id"),
+        "Player_Name": profile.get("name"),
+        "Country": profile.get("country"),
+        "DOB": profile.get("dateOfBirth"),
+        "Role": profile.get("role"),
         "player_role": profile.get("role"),  # Alternate key for compatibility
-        "meta": profile,
+        "Meta": profile,
     }
+
+
+# =====================================================================
+# VENUE PROFILE EXTRACTION
+# =====================================================================
+
+def extract_venue_metadata(profile: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract venue metadata from venue profile API response.
+
+    The /venues/v1/{venue_id} endpoint returns:
+    {
+        "Venue_ID": 123,
+        "Venue_Name": "Eden Gardens",
+        "City": "Kolkata",
+        "Country": "India",
+        "Capacity": 66000,
+        "timezone": "UTC+5:30",
+        ... other fields
+    }
+
+    Returns a dict with normalized keys for upsert_venue():
+    {
+        "Venue_ID": venue_id,
+        "Venue_Name": ground name,
+        "City": city name,
+        "Country": country name,
+        "Capacity": integer,
+        "Time_Zone": timezone string
+    }
+    """
+    return {
+        "Venue_ID": profile.get("id"),
+        "Venue_Name": profile.get("ground"),
+        "City": profile.get("city"),
+        "Country": profile.get("country"),
+        "Capacity": profile.get("capacity"),
+        "Time_Zone": profile.get("timezone") or profile.get("timeZone"),
+        "Meta": profile,
+    }
+    
+# =====================================================================
+# Team Profile EXTRACTION
+# =====================================================================
+
+def extract_team_metadata(team: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract team metadata from team profile API response.
+    
+    Supports multiple payload formats (API variants and normalized).
+    Falls back to team name when country is missing.
+
+    Returns a dict with normalized keys for upsert_team():
+    {
+        "Team_ID": team_id,
+        "Team_Name": team name,
+        "Country": country name (or team name if country missing)
+    }
+    """
+    team_id = team.get("teamId") or team.get("id")
+    team_name = (
+        team.get("teamName")
+        or team.get("name")
+        or None
+    )
+    
+    country = (
+        team.get("countryName")
+        or team.get("country")
+        or team.get("country_name")
+        or None
+    )
+    
+    # Fallback: use team name as country when country is missing
+    if not country and team_name:
+        country = team_name
+    
+    return {
+        "Team_ID": team_id,
+        "Team_Name": team_name,
+        "Country": country,
+        "Meta": team
+    }
+    

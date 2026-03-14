@@ -79,6 +79,50 @@ def _execute(engine_or_secrets: Any, sql: str, params: Tuple[Any, ...]) -> Optio
     raise RuntimeError(f"Unsupported engine_or_secrets: {type(engine_or_secrets)!r}")
 
 
+def _query(engine_or_secrets: Any, sql: str, params: Tuple[Any, ...]) -> List[Dict[str, Any]]:
+    """Execute SELECT query and return results as list of dicts."""
+    # SQLAlchemy engine/connection
+    if hasattr(engine_or_secrets, "connect") and create_engine:
+        raw = engine_or_secrets.raw_connection()
+        cur = raw.cursor()
+        try:
+            cur.execute(sql, params)
+            columns = [desc[0] for desc in cur.description]
+            results = [dict(zip(columns, row)) for row in cur.fetchall()]
+        finally:
+            cur.close()
+            raw.close()
+        return results
+
+    # Accept plain dicts as well as mapping-like objects (e.g. Streamlit secrets)
+    from collections.abc import Mapping
+
+    if isinstance(engine_or_secrets, Mapping):
+        secrets: Dict[str, Any] = cast(Dict[str, Any], engine_or_secrets)
+        pm = _get_pymysql()
+        try:
+            conn = pm.connect(
+                host=str(secrets.get("host") or "127.0.0.1"),
+                user=str(secrets.get("user") or "root"),
+                password=str(secrets.get("password") or ""),
+                database=str(secrets.get("database") or secrets.get("dbname") or ""),
+                port=int(secrets.get("port") or 3306),
+                charset="utf8mb4",
+            )
+            with conn.cursor() as cur:
+                cur.execute(sql, params)
+                columns = [desc[0] for desc in cur.description]
+                results = [dict(zip(columns, row)) for row in cur.fetchall()]
+            conn.close()
+            return results
+        except Exception as e:
+            # Log helpful debug info (do not print secrets)
+            print(f"ERROR executing query: {e}; SQL=<{sql[:200]}>; params={params}")
+            raise
+
+    raise RuntimeError(f"Unsupported engine_or_secrets: {type(engine_or_secrets)!r}")
+
+
 # -------------------------------------------------
 # Schema creation (9 tables)
 # -------------------------------------------------
@@ -88,136 +132,151 @@ def create_mysql_schema(engine_or_secrets: Any):
         # 1. Series
         """
         CREATE TABLE IF NOT EXISTS series (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_series_id VARCHAR(50) UNIQUE,
-            series_name VARCHAR(255),
-            series_type VARCHAR(100),
-            start_date DATETIME,
-            end_date DATETIME,
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Series_ID VARCHAR(50) UNIQUE,
+            Series_Name VARCHAR(255),
+            Series_Type VARCHAR(100),
+            start_Date DATETIME,
+            End_Date DATETIME,
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 2. Teams
         """
         CREATE TABLE IF NOT EXISTS teams (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_team_id VARCHAR(50) UNIQUE,
-            team_name VARCHAR(255),
-            country VARCHAR(100),
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Team_ID VARCHAR(50) UNIQUE,
+            Team_Name VARCHAR(255),
+            Country VARCHAR(100),
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 3. Players
         """
         CREATE TABLE IF NOT EXISTS players (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_player_id VARCHAR(50) UNIQUE,
-            player_name VARCHAR(255),
-            country VARCHAR(100),
-            role VARCHAR(100),
-            date_of_birth DATE,
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Player_ID VARCHAR(50) UNIQUE,
+            Player_Name VARCHAR(255),
+            Country VARCHAR(100),
+            Role VARCHAR(100),
+            Batting_Style VARCHAR(100),
+            Bowling_Style VARCHAR(100),
+            DOB DATE,
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 4. Venues ✅ (FIXED)
         """
         CREATE TABLE IF NOT EXISTS venues (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_venue_id VARCHAR(50) UNIQUE,
-            venue_name VARCHAR(255),
-            city VARCHAR(100),
-            country VARCHAR(100),
-            timezone VARCHAR(50),
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Venue_ID VARCHAR(50) UNIQUE,
+            Venue_Name VARCHAR(255),
+            City VARCHAR(100),
+            Country VARCHAR(100),
+            Time_Zone VARCHAR(50),
+            Capacity INT,
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 5. Matches
         """
         CREATE TABLE IF NOT EXISTS matches (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(50) UNIQUE,
-            external_series_id VARCHAR(50),
-            external_venue_id VARCHAR(50),
-            match_desc VARCHAR(255),
-            match_format VARCHAR(20),
-            start_date DATETIME,
-            status VARCHAR(255),
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Match_ID VARCHAR(50) UNIQUE,
+            Series_ID VARCHAR(50),
+            Venue_ID VARCHAR(50),
+            Match_Desc VARCHAR(255),
+            Match_Format VARCHAR(20),
+            Start_Date DATETIME,
+            Status VARCHAR(255),
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 6. Innings
         """
         CREATE TABLE IF NOT EXISTS innings (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(50),
-            innings_id VARCHAR(50),
-            batting_team VARCHAR(255),
-            bowling_team VARCHAR(255),
-            runs INT,
-            wickets INT,
-            overs FLOAT,
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Match_ID VARCHAR(50),
+            Innings_ID VARCHAR(50),
+            Batting_Team VARCHAR(255),
+            Bowling_Team VARCHAR(255),
+            Runs INT,
+            Wickets INT,
+            Overs FLOAT,
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 7. Batting stats
         """
         CREATE TABLE IF NOT EXISTS batting_stats (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(50),
-            innings_id VARCHAR(50),
-            player_name VARCHAR(255),
-            runs INT,
-            balls INT,
-            fours INT,
-            sixes INT,
-            strike_rate FLOAT,
-            dismissal VARCHAR(255),
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Match_ID VARCHAR(50),
+            Innings_ID VARCHAR(50),
+            Player_Name VARCHAR(255),
+            Runs INT,
+            Balls INT,
+            Fours INT,
+            Sixes INT,
+            Strike_rate FLOAT,
+            Dismissal VARCHAR(255),
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 8. Bowling stats
         """
         CREATE TABLE IF NOT EXISTS bowling_stats (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(50),
-            innings_id VARCHAR(50),
-            player_name VARCHAR(255),
-            overs FLOAT,
-            maidens INT,
-            runs_conceded INT,
-            wickets INT,
-            economy FLOAT,
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Match_ID VARCHAR(50),
+            Innings_ID VARCHAR(50),
+            Player_Name VARCHAR(255),
+            Overs FLOAT,
+            Maidens INT,
+            Runs_Conceded INT,
+            Wickets INT,
+            Economy FLOAT,
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
 
         # 9. Partnerships
         """
         CREATE TABLE IF NOT EXISTS batting_partnerships (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
-            external_match_id VARCHAR(50),
-            innings_id VARCHAR(50),
-            player1 VARCHAR(255),
-            player2 VARCHAR(255),
-            runs INT,
-            balls INT,
-            meta JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ID BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Match_ID VARCHAR(50),
+            Innings_ID VARCHAR(50),
+            Player1 VARCHAR(255),
+            Player2 VARCHAR(255),
+            Runs INT,
+            Balls INT,
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
+
+        # 10. Toss Details
+        """
+        CREATE TABLE IF NOT EXISTS toss_details (
+            toss_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            Match_ID VARCHAR(50),
+            toss_winner_team VARCHAR(255),
+            decision VARCHAR(50),
+            Meta JSON,
+            Created_ON TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         """,
     ]
@@ -226,17 +285,33 @@ def create_mysql_schema(engine_or_secrets: Any):
         _execute(engine_or_secrets, stmt, ())
 
     # Backwards-compatible migrations (safe to re-run)
+    # try:
+    #     # Older MySQL versions don't support "ADD COLUMN IF NOT EXISTS"; attempt and ignore "column exists" errors
+    #     _execute(engine_or_secrets, "ALTER TABLE players ADD COLUMN date_of_birth DATE", ())
+    # except Exception as e:
+    #     msg = str(e).lower()
+    #     if "duplicate column" in msg or "already exists" in msg or "1060" in msg:
+    #         # Column already exists; nothing to do
+    #         pass
+    #     else:
+    #         # Log the warning but do not raise to keep schema creation resilient
+    #         print(f"Warning: could not add date_of_birth column: {e}")
+    
+    # Add unique constraint to prevent duplicate partnerships
     try:
-        # Older MySQL versions don't support "ADD COLUMN IF NOT EXISTS"; attempt and ignore "column exists" errors
-        _execute(engine_or_secrets, "ALTER TABLE players ADD COLUMN date_of_birth DATE", ())
+        _execute(
+            engine_or_secrets,
+            "ALTER TABLE batting_partnerships ADD UNIQUE KEY uq_match_innings_players (Match_ID, Innings_ID, Player1, Player2)",
+            ()
+        )
     except Exception as e:
         msg = str(e).lower()
-        if "duplicate column" in msg or "already exists" in msg or "1060" in msg:
-            # Column already exists; nothing to do
+        if "duplicate key" in msg or "already exists" in msg or "1061" in msg:
+            # Index already exists; nothing to do
             pass
         else:
-            # Log the warning but do not raise to keep schema creation resilient
-            print(f"Warning: could not add date_of_birth column: {e}")
+            # Log the warning but do not raise
+            print(f"Warning: could not add unique constraint to batting_partnerships: {e}")
 
 
 # -------------------------------------------------
@@ -269,14 +344,14 @@ def upsert_series(
         end_dt = None
 
     sql = """
-    INSERT INTO series (external_series_id, series_name, series_type, start_date, end_date, meta)
+    INSERT INTO series (Series_ID, Series_Name, Series_Type, Start_Date, End_Date, Meta)
     VALUES (%s,%s,%s,%s,%s,%s)
     ON DUPLICATE KEY UPDATE
-        series_name = VALUES(series_name),
-        series_type = COALESCE(VALUES(series_type), series_type),
-        start_date = COALESCE(VALUES(start_date), start_date),
-        end_date = COALESCE(VALUES(end_date), end_date),
-        meta = VALUES(meta)
+        Series_Name = VALUES(Series_Name),
+        Series_Type = COALESCE(VALUES(Series_Type), Series_Type),
+        Start_Date = COALESCE(VALUES(Start_Date), Start_Date),
+        End_Date = COALESCE(VALUES(End_Date), End_Date),
+        Meta = VALUES(Meta)
     """
 
     rc = _execute(
@@ -299,12 +374,12 @@ def upsert_team(engine_or_secrets: Any, team_id: str, team_name: str, country: O
     Upsert a team record and optionally record its country. Existing non-null country is preserved.
     """
     sql = """
-    INSERT INTO teams (external_team_id, team_name, country, meta)
+    INSERT INTO teams (Team_ID, Team_Name, Country, Meta)
     VALUES (%s,%s,%s,%s)
     ON DUPLICATE KEY UPDATE
-        team_name = VALUES(team_name),
-        country = COALESCE(VALUES(country), country),
-        meta = VALUES(meta)
+        Team_Name = VALUES(Team_Name),
+        Country = COALESCE(VALUES(Country), Country),
+        Meta = VALUES(Meta)
     """
     rc = _execute(engine_or_secrets, sql, (team_id, team_name, country, json.dumps({})))
     return rc
@@ -313,14 +388,16 @@ def upsert_team(engine_or_secrets: Any, team_id: str, team_name: str, country: O
 def upsert_player(engine_or_secrets: Any, player: Dict[str, Any]) -> Optional[int]:
     """Insert or update a player record with best-effort extraction of country, role and date_of_birth."""
     sql = """
-    INSERT INTO players (external_player_id, player_name, country, role, date_of_birth, meta)
-    VALUES (%s,%s,%s,%s,%s,%s)
+    INSERT INTO players (Player_ID, Player_Name, Country, Role, Batting_Style, Bowling_Style, DOB, Meta)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
     ON DUPLICATE KEY UPDATE
-        player_name = VALUES(player_name),
-        country = COALESCE(VALUES(country), country),
-        role = COALESCE(VALUES(role), role),
-        date_of_birth = COALESCE(VALUES(date_of_birth), date_of_birth),
-        meta = VALUES(meta)
+        Player_Name = VALUES(Player_Name),
+        Country = COALESCE(VALUES(Country), Country),
+        Role = COALESCE(VALUES(Role), Role),
+        Batting_Style = COALESCE(VALUES(Batting_Style), Batting_Style),
+        Bowling_Style = COALESCE(VALUES(Bowling_Style), Bowling_Style),
+        DOB = COALESCE(VALUES(DOB), DOB),
+        Meta = VALUES(Meta)
     """
 
     # Support a variety of player id/name fields returned by different endpoints
@@ -407,6 +484,24 @@ def upsert_player(engine_or_secrets: Any, player: Dict[str, Any]) -> Optional[in
         except Exception:
             role = role or None
 
+    # Extract batting/bowling styles (support values in meta or top-level keys)
+    batting_style = None
+    bowling_style = None
+    meta_for_styles = player.get("meta")
+    try:
+        if isinstance(meta_for_styles, str):
+            meta_for_styles = json.loads(meta_for_styles)
+    except Exception:
+        meta_for_styles = None
+    if isinstance(meta_for_styles, dict):
+        batting_style = meta_for_styles.get("batting_style") or meta_for_styles.get("battingStyle")
+        bowling_style = meta_for_styles.get("bowling_style") or meta_for_styles.get("bowlingStyle")
+
+    if not batting_style:
+        batting_style = player.get("battingStyle") or player.get("batting_style") or None
+    if not bowling_style:
+        bowling_style = player.get("bowlingStyle") or player.get("bowling_style") or None
+
     rc = _execute(
         engine_or_secrets,
         sql,
@@ -415,6 +510,8 @@ def upsert_player(engine_or_secrets: Any, player: Dict[str, Any]) -> Optional[in
             name,
             country,
             role,
+            batting_style,
+            bowling_style,
             dob,
             json.dumps(player),
         ),
@@ -423,21 +520,44 @@ def upsert_player(engine_or_secrets: Any, player: Dict[str, Any]) -> Optional[in
 
 
 def upsert_venue(engine_or_secrets: Any, venue: Dict[str, Any]) -> Optional[int]:
+    # Accept multiple possible key names from different API payloads
+    vid = (
+        venue.get("Venue_ID")
+        or venue.get("venue_id")
+        or venue.get("id")
+        or venue.get("external_venue_id")
+    )
+    name = (
+        venue.get("Venue_Name")
+        or venue.get("venue_name")
+        or venue.get("ground")
+        or venue.get("name")
+    )
+    city = venue.get("City") or venue.get("city")
+    country = venue.get("Country") or venue.get("country")
+    tz = venue.get("Time_Zone") or venue.get("time_zone") or venue.get("timezone") or venue.get("timeZone")
+    meta = venue.get("Meta") or venue
+
+    # Require an external id and name to avoid inserting incomplete placeholder rows
+    if not vid or not name:
+        return 0
+
     sql = """
-    INSERT INTO venues (external_venue_id, venue_name, city, country, timezone, meta)
+    INSERT INTO venues (Venue_ID, Venue_Name, City, Country, Time_Zone, Capacity, Meta)
     VALUES (%s,%s,%s,%s,%s,%s)
-    ON DUPLICATE KEY UPDATE venue_name = VALUES(venue_name)
+    ON DUPLICATE KEY UPDATE Venue_Name = VALUES(Venue_Name), City = VALUES(City), Country = VALUES(Country), Time_Zone = VALUES(Time_Zone), Meta = VALUES(Meta)
     """
+
     rc = _execute(
         engine_or_secrets,
         sql,
         (
-            str(venue.get("id")),
-            venue.get("ground"),
-            venue.get("city"),
-            venue.get("country"),
-            venue.get("timezone"),
-            json.dumps(venue),
+            str(vid),
+            name,
+            city,
+            country,
+            tz,
+            json.dumps(meta),
         ),
     )
     return rc
@@ -474,17 +594,17 @@ def upsert_match(engine_or_secrets: Any, match: Dict[str, Any]) -> Optional[int]
 
     sql = """
     INSERT INTO matches (
-        external_match_id,
-        external_series_id,
-        external_venue_id,
-        match_desc,
-        match_format,
-        start_date,
-        status,
-        meta
+        Match_ID,
+        Series_ID,
+        Venue_ID,
+        Match_Desc,
+        Match_Format,
+        Start_Date,
+        Status,
+        Meta
     )
     VALUES (%s,%s,%s,%s,%s,FROM_UNIXTIME(%s/1000),%s,%s)
-    ON DUPLICATE KEY UPDATE status = VALUES(status)
+    ON DUPLICATE KEY UPDATE Status = VALUES(Status), Meta = VALUES(Meta)
     """
 
     rc = _execute(
@@ -507,7 +627,7 @@ def upsert_match(engine_or_secrets: Any, match: Dict[str, Any]) -> Optional[int]
 def upsert_batting(engine_or_secrets: Any, match_id: str, innings_id: str, rows: List[Dict[str, Any]]) -> Optional[int]:
     sql = """
     INSERT INTO batting_stats
-    (external_match_id, innings_id, player_name, runs, balls, fours, sixes, strike_rate, dismissal, meta)
+    (Match_ID, Innings_ID, Player_Name, Runs, Balls, Fours, Sixes, Strike_Rate, Dismissal, Meta)
     VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
     total_rc = 0
@@ -536,7 +656,7 @@ def upsert_batting(engine_or_secrets: Any, match_id: str, innings_id: str, rows:
 def upsert_bowling(engine_or_secrets: Any, match_id: str, innings_id: str, rows: List[Dict[str, Any]]) -> Optional[int]:
     sql = """
     INSERT INTO bowling_stats
-    (external_match_id, innings_id, player_name, overs, maidens, runs_conceded, wickets, economy, meta)
+    (Match_ID, Innings_ID, Player_Name, Overs, Maidens, Runs_Conceded, Wickets, Economy, Meta)
     VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
     total_rc = 0
@@ -569,21 +689,21 @@ def upsert_innings(
     """
     sql = """
     INSERT INTO innings (
-        external_match_id,
-        innings_id,
-        batting_team,
-        bowling_team,
-        runs,
-        wickets,
-        overs,
-        meta
+        Match_ID,
+        Innings_ID,
+        Batting_Team,
+        Bowling_Team,
+        Runs,
+        Wickets,
+        Overs,
+        Meta
     )
     VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
     ON DUPLICATE KEY UPDATE
-        runs = VALUES(runs),
-        wickets = VALUES(wickets),
-        overs = VALUES(overs),
-        meta = VALUES(meta)
+        Runs = VALUES(Runs),
+        Wickets = VALUES(Wickets),
+        Overs = VALUES(Overs),
+        Meta = VALUES(Meta)
     """
 
     innings_id = str(inning.get("inningsId") or inning.get("inningsid") or "")
@@ -645,26 +765,36 @@ def upsert_partnerships(
     The `partnerships` list may contain dicts (with keys like 'players', 'runs', 'balls')
     or raw strings; dicts are processed to extract player names and stats, strings are stored
     as raw text in the `meta` column.
+    
+    Strategy: Check if partnership with same metadata already exists. If yes, skip (avoid duplicate).
+    If no, insert it.
     """
-    sql = """
+    insert_sql = """
     INSERT INTO batting_partnerships (
-        external_match_id,
-        innings_id,
-        player1,
-        player2,
-        runs,
-        balls,
-        meta
+        Match_ID,
+        Innings_ID,
+        Player1,
+        Player2,
+        Runs,
+        Balls,
+        Meta
     )
     VALUES (%s,%s,%s,%s,%s,%s,%s)
+    """
+    
+    # Query to check if partnership already exists with same metadata
+    check_sql = """
+    SELECT COUNT(*) as cnt FROM batting_partnerships 
+    WHERE Match_ID = %s AND Innings_ID = %s AND Player1 <=> %s AND Player2 <=> %s AND Meta = %s
     """
 
     total_rc = 0
     for p in partnerships:
         if isinstance(p, dict):
             players = p.get("players", [])
-            player1 = players[0].get("name") if len(players) > 0 and isinstance(players[0], dict) else None
-            player2 = players[1].get("name") if len(players) > 1 and isinstance(players[1], dict) else None
+            # Support both "bat1name"/"bat2name" (API format) and "Player1"/"Player2" (normalized format)
+            player1 = p.get("bat1name") or p.get("Player1") or None
+            player2 = p.get("bat2name") or p.get("Player2") or None
             runs = p.get("runs")
             balls = p.get("balls")
             meta = json.dumps(p)
@@ -676,9 +806,25 @@ def upsert_partnerships(
             balls = None
             meta = json.dumps({"raw": str(p)})
 
+        # Check if this exact partnership already exists
+        try:
+            existing = _query(
+                engine_or_secrets,
+                check_sql,
+                (match_id, innings_id, player1, player2, meta),
+            )
+            if existing and len(existing) > 0 and existing[0].get("cnt", 0) > 0:
+                # Partnership already exists with same metadata - skip insertion
+                print(f"DEBUG: Partnership already exists for match {match_id} innings {innings_id} "
+                      f"players {player1} vs {player2} - skipping to avoid duplicate")
+                continue
+        except Exception as e:
+            print(f"Warning: Could not check for existing partnership: {e}")
+            # If check fails, proceed with insert attempt
+
         rc = _execute(
             engine_or_secrets,
-            sql,
+            insert_sql,
             (
                 match_id,
                 innings_id,
@@ -692,3 +838,42 @@ def upsert_partnerships(
         if rc:
             total_rc += rc
     return total_rc
+
+
+def upsert_toss_details(
+    engine_or_secrets: Any,
+    match_id: str,
+    toss_winner_team: str,
+    decision: str,
+    meta: Optional[Dict[str, Any]] = None,
+) -> Optional[int]:
+    """
+    Upsert toss details for a match.
+    
+    Args:
+        engine_or_secrets: Database connection/engine
+        match_id: Match ID
+        toss_winner_team: Team that won the toss
+        decision: Decision made (e.g., 'bat', 'bowl')
+        meta: Optional metadata JSON
+    
+    Returns:
+        Number of rows affected
+    """
+    meta_json = json.dumps(meta) if meta else None
+    
+    sql = """
+    INSERT INTO toss_details (Match_ID, toss_winner_team, decision, Meta)
+    VALUES (%s, %s, %s, %s)
+    ON DUPLICATE KEY UPDATE
+        toss_winner_team = VALUES(toss_winner_team),
+        decision = VALUES(decision),
+        Meta = VALUES(Meta)
+    """
+    
+    rc = _execute(
+        engine_or_secrets,
+        sql,
+        (match_id, toss_winner_team, decision, meta_json),
+    )
+    return rc
